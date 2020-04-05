@@ -1,0 +1,42 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% block title %}Login{% endblock %}
+{% block content %}
+{% if not request.user.is_authenticated %}
+<div class="mx-auto w-800">
+  <div class="card border-0 wr-45">
+    <div class="card-body">
+      <h5 class="card-title text-center text-primary font-weight-bold font-size-25">Sign In</h5>
+      {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+      <div class="alert alert-danger alert-dismissible fade show text-center p-2 w-300 shadow mx-auto" role="alert">
+        {{ error|escape }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      <form action="{% url 'index_url' %}" method="POST">
+        <input type="hidden" name="type" value="{{a}}">
+        <input type="hidden" name="id" value="{{b}}">
+        {% csrf_token %}
+        <div class="form-group wr-25 mx-auto">
+          <label for="exampleInputEmail1">Username</label>
+            <input type="text" class="form-control" autocomplete="off" name="username" id="exampleInputEmail1"
+              aria-describedby="emailHelp">
+        </div>
+        <div class="form-group wr-25 mx-auto">
+          <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="password" autocomplete="off" class="form-control" id="exampleInputPassword1">
+            <a href="{% url 'admin_password_reset' %}"
+              class="card-link text-primary text-decoration font-weight-bold float-right mt-2" id="signinlink">Forgot Password ?</a>
+              
+        </div>
+        <div class="form-group wr-25 mx-auto mt-5">
+          <input type="hidden" name="next" value="{{ next }}" />
+          <button type="submit" class="btn btn-primary text-center font-weight-bold w-120 ml-140">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{%  endif %}
+{% endblock %}

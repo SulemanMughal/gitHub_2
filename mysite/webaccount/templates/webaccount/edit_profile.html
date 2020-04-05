@@ -1,0 +1,60 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+{% block title %} Edit Profile {% endblock %}
+{% block content %}
+<div class="mx-auto w-400 mt-5" >
+            <div class="card shadow border-0 wr-25 mb-4"  >
+                <div class="card-header bg-transparent border-0">
+                    <h3 class="card-title text-center text-primary">Edit Profile</h3>
+                </div>
+                {% if form.errors %}
+                {% for field in form %}
+                {% for error in field.errors %}
+                <div class="alert alert-danger alert-dismissible" style = "padding-bottom: 0px;">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ error|escape }}</strong>
+                </div>
+                {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible" style = "padding-bottom: 0px;">
+                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                <strong>{{ error|escape }}</strong>
+                </div>
+                {% endfor %}
+                {% endif %}
+                <div class="card-body">
+                    <form action="{% url 'edit_profile' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="exampleUserName1" >User Name</label>
+                        <input type="text" name="username" value="{{ request.user.username }}" maxlength="150" required id="id_username" class="form-control" >
+                        <small id="usernameHelpInline" class="text-muted">
+                            Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+                        </small>
+                    </div >
+
+                    <div class="form-group">
+                        <label for="exampleFirstName1" >First Name</label>
+                        <input type="text" name="first_name" value="{{ request.user.first_name }}" maxlength="30" id="id_first_name" class="form-control" >
+                    </div >
+                    
+
+                    <div class="form-group">
+                        <label for="exampleLastName1" >Last Name</label>
+                        <input type="text" name="last_name" value="{{ request.user.last_name }}" maxlength="150" id="id_last_name" class="form-control" >
+                    </div >
+                    <div class="form-group">
+                        <label for="exampleLastName1" >Email</label>
+                        <input type="email" name="email" value="{{ request.user.email }}" maxlength="150" id="id_email" class="form-control" >
+                    </div >
+                    <input type="hidden" name="password" value="{{ request.user.password }}" id="id_password">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" value="Edit Profile">Save</button>
+                    </form>
+                    <br>
+                    
+                </div>
+            </div>
+        </div>
+{% endblock content %}

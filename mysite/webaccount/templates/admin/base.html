@@ -1,0 +1,387 @@
+{% load i18n static %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl" {% endif %}>
+
+
+<head>
+  <title>{% block title %}{% endblock %}</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  {% block extrastyle %}{% endblock %}
+  {% if LANGUAGE_BIDI %}
+  <link rel="stylesheet" type="text/css"
+    href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
+  {% block extrahead %}{% endblock %}
+  {% block responsive %}
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  {% if LANGUAGE_BIDI %}
+  <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+  {% endblock %}
+  {% block blockbots %}
+  <meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+
+  <!-- Boostrap -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.0/css/bootstrap.css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,700">
+  <link rel='dns-prefetch' href='//use.fontawesome.com' />
+  <link rel='stylesheet' id='fontawesome-css' href='https://use.fontawesome.com/releases/v5.2.0/css/all.css?ver=5.2.0'
+    type='text/css' media='all' />
+
+  <!-- End of Boostrap -->
+
+  <!-- Custom -->
+  <link rel="stylesheet" href="{% static 'admin/css/base_2.css' %}">
+  <link href="{% static 'admin/css/dashboard.css' %}" rel="stylesheet">
+  <!-- End of Custom -->
+
+  <style>
+    ul li {
+      list-style-type: none;
+    }
+
+    .pr-85{
+      padding-right:85px;
+    }
+    
+    .position-36{
+      right:36px;
+    }
+
+    .wr-30{
+      width:30rem;
+    }
+
+  </style>
+
+</head>
+
+{% load i18n %}
+
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+  data-admin-utc-offset="{% now "Z" %}">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow mb-5" style="z-index:999;">
+
+    {% if request.user.is_authenticated and request.user.is_superuser %}
+    <a class="navbar-brand" href="{% url 'index_url' %}">Accounting</a>
+    {% else %}
+    <a class="navbar-brand" href="{% url 'index_url' %}">Accounting</a>
+    {% endif %}
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto">
+
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+        {% if cl.search_fields %}
+        <li class="nav-item font-weight-bold text-white font-size-20">
+          <div id="toolbar" >
+            <form id="changelist-search" method="get"></form>
+        <div>
+          <form class="form-inline my-2 my-lg-0" id="changelist-search" method="get">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="q" value="{{ cl.query }}" id="searchbar">
+          </form>
+        </li>
+        {% endif %}
+        {% endif %}
+
+
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+        <li class="nav-item font-weight-bold text-white font-size-20">
+          <a class="nav-link" href="{% url 'profile_url' %}" tabindex="-1" aria-disabled="true">
+            <i class="fas fa-id-badge"></i> {{ request.user.username }}</a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item font-weight-bold text-white font-size-20">
+          {% if request.user.is_authenticated  %}
+          {% if request.user.is_superuser %}
+          <a class="nav-link" href="{% url 'admin:password_change' %}" tabindex="-1" aria-disabled="true"><i
+              class="fas fa-edit"></i> Change Password</a>
+              {% else %}
+              <a class="nav-link" href="{% url 'change_password' %}" tabindex="-1" aria-disabled="true"><i
+                class="fas fa-edit"></i> Change Password</a>
+              {% endif %}
+          {% endif %}
+        </li>
+
+        <li class="nav-item font-weight-bold text-white font-size-20">
+          {% if request.user.is_authenticated %}
+          {% if request.user.is_superuser %}
+          
+          <a class="nav-link" href="{% url 'admin:logout' %}" tabindex="-1" aria-disabled="true"><i
+              class="fas fa-sign-out-alt"></i> Logout</a>
+              {%  else  %}
+              <a class="nav-link" href="{% url 'logout_url' %}" tabindex="-1" aria-disabled="true"><i
+                class="fas fa-sign-out-alt"></i> Logout</a>
+                {% endif %}
+          {% endif %}
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+
+  <div class="container-fluid">
+    <div class="row">
+      {% if request.user.is_authenticated  %}
+      {% if request.user.is_superuser %}
+      <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+        <div class="sidebar-sticky">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin:index' %}">
+                Dashboard
+              </a>
+            </li>
+            <li class="nav-item bg-primary">
+              <a class="nav-link  text-white font-weight-bold" href="/admin/auth/">
+                Auth
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/auth/user/">
+                <i class="far fa-user"></i> Users 
+              </a>
+            </li>
+            <li class="nav-item bg-primary">
+              <a class="nav-link  text-white" href="/admin/webaccount/">
+                Webaccount
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/client_personal_info/">
+                <i class="fas fa-address-book"></i> Clients
+              </a>
+            </li>
+            
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/clientreport/">
+                <i class="fas fa-file"></i> Client Reports
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/clientinvoice/">
+                <i class="fas fa-file"></i> Client Invoices
+              </a>
+            </li>
+            
+            
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/relationmanager/">
+                <i class="fas fa-file"></i> Relational Managers
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/sector/">
+                <i class="fas fa-building"></i> Sectors
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/required_documents/">
+                <i class="fas fa-file"></i> Required Documents
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/clientrequireddocuments/">
+                <i class="fas fa-file"></i> Client Uploaded Documents
+              </a>
+            </li>
+            
+          </ul>
+        </div>
+      </nav>
+      {% endif %}
+      {% endif %}
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 mx-auto">
+        {% block messages %}
+          {% if messages %}
+            <ul class="list-group wr-30 mx-auto">
+              {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow mx-auto wr-30 pr-85 position-36" role="alert">
+                  {{ message|capfirst }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endblock messages %}
+        {% block pretitle %}{% endblock %}
+        {% block content_title %}
+          {% if title %}
+            <h3 class="card-title text-primary font-weight-bold font-size-20 wr-25 mx-auto mt-2 text-center  {% if title == 'Log in' %} mt-5 {% endif %}">
+              {% if title == "Log in" %}
+                Sign In
+              {% elif title == "Select sector to change" %}
+              Sectors 
+              {% elif title == "Change user" %}
+                User Details
+          {% elif title == "Select required_ documents to change" %} 
+              Required Documents 
+            {% elif title == "Add required_ documents" %}
+              Add Required Document
+            {% elif title == "Add user" %}
+            Add User
+
+            {% elif title == "Change required_ documents" %}
+              Change Required Document
+          {% elif title == "Select client to change" %}
+              Client
+              {% elif title == "Select user to change" %}
+              Users
+              <script>
+                $(document).ready(function()
+                {
+                    window.location.href="/admin/auth/user/"
+                });
+              </script>
+          {% elif title == "Select client_ personal_ info to change" %}
+              Client Personal Info
+          {% elif title == "Add client_ personal_ info" %}
+              Client Personal Info
+          {% elif title == "Change client_ personal_ info" %}
+              Client Details
+          {% elif title == "Select client_ company_ info to change" %}
+              Client Company Info
+          {% elif title == "Add client_ company_ info" %}
+              Client Company Info
+              {% elif title == "Select Client Personal Information to change"  %}
+              Client Personal Information
+            {% elif title == "Add Client Personal Information" %}
+              Client Details
+            {% elif title == "Select Required Document to change" %}
+              Required Documents
+              {% elif title == "Add Required Document" %}
+              Required Document Details
+              {% elif title == "Change Required Document" %}
+              Required Document Details
+              {% elif title == "Add sector" %}
+                Sector Details
+                {% elif title == "Select Client Report to change" %}
+                  Client Reports
+                {% elif title == "Add Client Report" %}
+                  Client Report Details
+                  {% elif title == "Change Client Report" %}
+                    Client Report Details
+                  {% elif title == "Select Subscription Information to change" %}
+                    Subscription Information
+                  {% elif title == "Add Subscription Information" or title == "Change Subscription Information" %}
+                    Subscription Information Details
+
+                  {% elif title == "Change sector" %}
+                    Sector Details
+                    {% elif title == "Select relation manager to change" %}
+                    Relational Managers
+                    {% elif title == "Add relation manager" or title == "Change relation manager" %}
+                      Relational Manager Details
+                    {% elif title == "Select Client Invoice to change" %}
+                        Client Invoices
+                        {% elif title == "Add Client Invoice" or title == "Change Client Invoice" %}
+                        Client Invoice Details
+
+                      {% elif title == "Change Client Personal Information" %}
+                          Client Personal Information Details
+          {% else %}
+              {{ title }}
+          {% endif %}
+            </h3>
+          {% endif %}
+        {% endblock %}
+
+        {% block content %}
+
+        {% block object-tools %}{% endblock %}
+        {{ content }}
+        {% endblock %}
+        {% block sidebar %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.9.0/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script> -->
+  <script src="{% static 'admin/js/dashboard.js' %}"></script>
+  <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/actions.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/urlify.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/prepopulate.js' %}"></script>
+  <script type="text/javascript" src="{% static 'admin/js/vendor/xregexp/xregexp.js' %}"></script>
+
+
+  <script>
+    $(document).ready(function () {
+      $('[name="action"]').addClass("form-control");
+      $('[name="username"]').attr("autocomplete", "off");
+      $(".paginator").addClass("badge badge-primary p-2 font-size-16 mt-1");
+      // $("#action-toggle").addClass("custom-control-input");
+      $(".action-counter").addClass("badge badge-light font-size-12");
+      $("input").addClass("form-control");
+      $('[type="submit"]').removeClass("form-control");
+      $('[type="checkbox"]').removeClass("form-control");
+      // $('[type="checkbox"]').addClass("custom-control-input");
+      // $('.vCheckboxLabel').addClass("custom-control-input");
+      $(".errorlist").children("li").addClass("text-danger font-weight-bold");
+      $(".errorlist").addClass("pl-0");
+      $(".required").addClass("font-weight-bold");
+      // $(".errorlist").children("li").pare;
+      // $("label").prepend("<br><br>");
+      $('select').addClass("form-control");
+      // $("select").prepend("<br>");
+      $('[for = "id_client"]').after("<br>");
+      $('[for="id_sector"]').after("<br>")
+      $('[for="id_company"]').after("<br>");
+      $('[for="id_subscription"]').after("<br>");
+      $('[for="id_documents"]').after("<br>");
+      $('.field-last_login').hide();
+      $("#add_id_user").html('<i class="fas fa-plus ml-2"></i>');
+      $("#change_id_user").html('<i class="fas fa-edit"></i>');
+      // $("#add_id_user").html("")
+      $(".list-group.mt-2").children("li").addClass("list-group-item list-group-item-action border");
+      // $(".list-group-item").children("a").addClass("l");
+      $(".date-icon").css("width", "50px");
+      $("#id_is_staff").attr("checked", "true");
+      $("#id_is_superuser").attr("checked", "true");
+      $('[for="id_manager"]').after("<br>");
+      $('[for="id_managerRelational"]').after("<br>");
+      $('[for="id_quoteStatus"]').addClass("ml-2");
+      $('[for="id_activeStatus"]').addClass("ml-2");
+      
+    });
+  </script>
+  
+              <script>
+                {% if title == "Add user" %}
+                $(".errorlist").children("li:first-child").css("display", "none");
+                {% endif %}
+              </script>
+
+</body>
+
+</html>

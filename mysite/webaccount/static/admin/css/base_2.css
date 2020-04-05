@@ -1,0 +1,104 @@
+.w-300 {
+        width: 300px;
+}
+
+.ml-240 {
+        margin-left: 240px;
+}
+
+.mt-100 {
+        margin-top: 100px;
+}
+
+.w-800 {
+        width: 800px;
+}
+
+.wr-45 {
+        width: 45rem;
+}
+
+.text-decoration {
+        text-decoration: underline;
+}
+
+.w-120 {
+        width: 120px;
+}
+
+.btn:focus,
+.btn:active,
+.form-control:focus,
+.form-control:active {
+        outline: none !important;
+        box-shadow: none !important;
+        /* border-color:none !important; */
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+}
+
+input[type="number"] {
+        -moz-appearance: textfield;
+}
+
+.font-size-25 {
+        font-size: 25px;
+}
+
+#signinlink:link {
+        text-decoration: underline;
+}
+
+/* visited link */
+#signinlink:visited {
+        text-decoration: underline;
+}
+
+/* mouse over link */
+#signinlink:hover {
+        text-decoration: underline;
+}
+
+/* selected link */
+#signinlink:active {
+        text-decoration: underline;
+}
+
+.w-800 {
+        width: 800px;
+}
+
+.wr-45 {
+        width: 45rem;
+}
+
+.font-size-20 {
+        font-size: 20px;
+}
+
+.w-400 {
+        width: 400px;
+}
+
+.wr-25 {
+        width: 25rem;
+}
+
+.ml-140 {
+        margin-left: 140px;
+}
+
+.font-size-16{
+        font-size: 16px;
+}
+
+.font-size-12{
+        font-size: 12px;
+}
+
+.w-600{
+        width:600px;
+}

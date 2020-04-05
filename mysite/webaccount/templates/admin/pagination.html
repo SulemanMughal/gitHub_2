@@ -1,0 +1,92 @@
+{% load admin_list %}
+{% load i18n %}
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+{% if pagination_required %}
+
+
+
+
+<li class="page-item  {% if cl.page_num == 0 %} disabled {% endif %}">
+    <a class="page-link" href='?p={{ cl.page_num|add:"-1" }}' aria-label="Previous" {% if cl.page_num == 0 %} aria-disabled="true" {% endif %} >
+      <span aria-hidden="true">&laquo;</span>
+    </a>
+  </li>
+
+  
+{% for i in page_range %}
+
+  
+    <li class="page-item {% if cl.page_num == i %} active {% endif %}" aria-current="page">
+        <a class="page-link" href="?p={{ i }}">
+            <span class="sr-only">(current)</span>{{ i|add:"1" }}
+        </a>
+    </li>
+
+
+{% endfor %}
+
+
+
+<li class="page-item  {% if cl.page_num|add:'1' == cl.paginator.num_pages %} disabled {% endif %}" >
+    <a class="page-link" href='?p={{ cl.page_num|add:"1" }}' aria-label="Next" {% if cl.page_num|add:"1" == cl.paginator.num_pages %} aria-disabled="true" {% endif %}>
+      <span aria-hidden="true">&raquo;</span>
+    </a>
+  </li>
+
+{% endif %}
+<h4><span class="badge badge-secondary ml-2 mt-2">
+{{ cl.result_count }} 
+{% if cl.result_count == 1 or  cl.result_count == 0 %}
+
+        
+    {% if cl.opts.verbose_name == "sector"  %}
+    Sector
+{% elif cl.opts.verbose_name == "required_ documents" %}
+    Required Document
+{% elif cl.opts.verbose_name == "client" %}
+    Client
+{% elif cl.opts.verbose_name == "user" %}
+    User
+{% elif cl.opts.verbose_name == "client_ personal_ info" %}
+    Client Personal Info
+{% elif cl.opts.verbose_name == "client_ company_ info" %}
+    Client Company Info
+{% elif cl.opts.verbose_name == "subscription_ information" %}
+    Subscription Information
+{% elif cl.opts.verbose_name == "relation manager" %}
+    Relational Manager
+{% else %}
+    {{ cl.opts.verbose_name }}
+{% endif %}
+    
+{% else %}
+   
+{% if cl.opts.verbose_name_plural == "sectors"  %}
+Sectors
+{% elif cl.opts.verbose_name_plural == "required_ documentss" %}
+Required Documents
+{% elif cl.opts.verbose_name_plural == "clienst" %}
+Clients
+{% elif cl.opts.verbose_name_plural == "users" %}
+Users
+{% elif cl.opts.verbose_name_plural == "client_ personal_ infos" %}
+Client Personal Info
+{% elif cl.opts.verbose_name_plural == "client_ company_ infos" %}
+Client Company Info
+{% elif cl.opts.verbose_name_plural == "subscription_ informations" %}
+Subscription Informations
+{% elif cl.opts.verbose_name_plural == "relation managers" %}
+    Relational Managers
+{% else %}
+{{ cl.opts.verbose_name_plural }}
+{% endif %}
+    
+</span></h4>
+
+    
+{% endif %}
+
+{% if cl.formset and cl.result_count %}<input type="submit" name="_save" class="default" value="{% trans 'Save' %}">{% endif %}
+</ul>
+</nav>

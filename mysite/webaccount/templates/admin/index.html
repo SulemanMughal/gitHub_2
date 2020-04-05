@@ -1,0 +1,66 @@
+{% extends 'admin/base.html' %}
+{% load i18n static %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% block content %}
+
+    
+
+
+
+    
+      {% if app_list %}
+        {% for app in app_list %}
+        <div class="card mx-auto mt-5 shadow mb-5 bg-white wr-25">
+          <div class="card-header">
+          <h5 class="card-title p-0 m-0 text-left"><a href="{{ app.app_url }}" class="card-link">{{ app.app_label|capfirst }}</a></h5>
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+              <tbody>
+                {% for model in app.models %}
+                <tr>
+                  {% if model.admin_url %}
+                  {% if model.name == "Users" %}
+                    <th scope="row" class="col-sm-3"><a href="{{ model.admin_url }}" class="card-link">{{ model.name }}</a></th>
+                  {% else %}
+                  <th scope="row" class="col-sm-3"><a href="{{ model.admin_url }}" class="card-link">{{ model.name }}</a></th>
+                  {% endif %}
+                  {% else %}
+                  <th scope="row" class="col-sm-3">{{ model.name }}</th>
+                  {% endif %}
+
+                  {% if model.add_url %}
+                    <td class="text-center col-sm-3"><a href="{{ model.add_url }}" class="card-link text-right"><i class="fas fa-plus"></i>  {% trans 'Add' %}</a></td>
+                  {% else %}
+                    <td class="col-sm-3 text-center">&nbsp;</td>
+                  {% endif %}
+
+                  {% if model.admin_url %}
+                    {% if model.view_only %}
+                      <td class="col-sm-3 text-right"><a href="{{ model.admin_url }}" class="card-link">{% trans 'View' %}</a></td>
+                    {% else %}
+                      <td class="text-right col-sm-3"><a href="{{ model.admin_url }}" class="card-link"><i class="fas fa-edit"></i> {% trans 'Change' %}</a></td>
+                    {% endif %}
+                  {% else %}
+                    <td class="col-sm-3 text-right">&nbsp;</td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="card" style="width: 25rem;">
+        <div class="card-body">
+          <p class="card-text">{% trans 'You don’t have permission to view or edit anything.' %}</p>
+        </div>
+      </div>
+      {% endif %}
+    
+  
+
+{% endblock %}

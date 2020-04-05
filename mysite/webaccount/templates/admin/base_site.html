@@ -1,0 +1,75 @@
+{% extends "admin/base.html" %}
+
+{% block title %} 
+    {% if title == "Select sector to change" %}
+        Sectors 
+    {% elif title == "Select required_ documents to change" %} 
+        Required Documents 
+    {% elif title == "Add required_ documents" %}
+        Add Required Document
+    {% elif title == "Change required_ documents" %}
+        Change Required Document
+    {% elif title == "Select client to change" %}
+        Client
+    {% elif title == "Select user to change" %}
+        Users
+    {% elif title == "Change user" %}
+        User Details
+    {% elif title == "Select client_ personal_ info to change" %}
+        Client Personal Info
+    {% elif title == "Select Client Personal Information to change"  %}
+        Client Personal Information
+    {% elif title == "Select client_ company_ info to change" %}
+        Client Company Info
+    {% elif title == "Add client_ personal_ info" %}
+        Client Personal Info
+    {% elif title == "Change client_ personal_ info" %}
+        Client Details
+        {% elif title == "Add client_ company_ info" %}
+        Client Company Info
+    {% elif title == "Add Client Personal Information" %}
+        Client Details
+        {% elif title == "Select Required Document to change" %}
+        Required Documents
+        {% elif title == "Add Required Document" %}
+            Required Document Details
+            {% elif title == "Change Required Document" %}
+            Required Document Details
+            {% elif title == "Add sector" %}
+                Sector  Details
+                {% elif title == "Select Client Report to change" %}
+                  Client Reports
+                {% elif title == "Add Client Report" %}
+                  Client Report Details
+                  {% elif title == "Change Client Report" %}
+                    Client Report Details
+                    {% elif title == "Select Subscription Information to change" %}
+                    Subscription Information
+                  {% elif title == "Add Subscription Information" or title == "Change Subscription Information" %}
+                    Subscription Information Details
+                    {% elif title == "Change sector" %}
+                    Sector Details
+                {% elif title == "Select relation manager to change" %}
+                    Relational Managers
+
+                    {% elif title == "Add relation manager" or title == "Change relation manager" %}
+                      Relational Manager Details
+                      {% elif title == "Select Client Invoice to change" %}
+                      Client Invoices
+                      {% elif title == "Add Client Invoice" or title == "Change Client Invoice" %}
+                        Client Invoice Details
+                        {% elif title == "Change Client Personal Information" %}
+                        Client Personal Information Details
+
+
+    {% else %}
+        {{ title }}
+    {% endif %} | {{ site_title|default:_('Django site admin') }}
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,37 @@
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li class="list-group-item border-0 mb-2">
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <h5 class="card-title p-0 m-0 text-left">
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="card-link border rounded-pill p-1 font-size-16 bg-primary text-white float-right">
+      Add       
+      {% if cl.opts.verbose_name == "sector" %}
+      Sector
+  {% elif cl.opts.verbose_name == "required_ documents" %} 
+      Required Document 
+  {% elif cl.opts.verbose_name == "client" %}
+      Client
+  {% elif cl.opts.verbose_name == "user" %}
+      User
+  {% elif cl.opts.verbose_name == "client_ personal_ info" %}
+      Client Personal Info
+  {% elif cl.opts.verbose_name == "client_ company_ info" %}
+      Client Company Info
+  {% elif cl.opts.verbose_name == "subscription_ information" %}
+  Subscription Information
+  {% elif cl.opts.verbose_name == "Subscription_Information" %}
+      Subscription Information
+{% elif cl.opts.verbose_name == "relation manager" %}
+        Relational Manager
+  {% else %}
+  {{ cl.opts.verbose_name }}
+  {% endif %}
+  
+ <i class="fas fa-plus"></i> 
+    </a>
+  </h5>
+  </li>
+  {% endif %}
+{% endblock %}

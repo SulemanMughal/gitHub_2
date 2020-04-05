@@ -1,0 +1,62 @@
+{% extends 'admin/base.html' %}
+{% block title %} {{ request.user.username }} | Profile {% endblock %}
+
+{% block content %}
+
+<div class="mx-auto w-400 mt-5" >
+
+
+<div class="card shadow border-0 wr-25">
+  <div class="card-body">
+    <table class="table">
+      <tbody>
+        <tr>
+          <td class="font-weight-bold">Username</td>
+          <td>{{ request.user.username }}</td>
+          
+        </tr>
+        <tr>
+          <td class="font-weight-bold">First Name</td>
+          <td>{{ request.user.first_name }}</td>
+        </tr>
+        <tr>
+          <td class="font-weight-bold">Last Name</td>
+          <td>{{ request.user.last_name }}</td>
+        </tr>
+        <tr>
+          <td class="font-weight-bold">Email</td>
+          <td>{{ request.user.email }}</td>
+        </tr>
+        <tr>
+          <td class="font-weight-bold">Status</td>
+          <td>
+            {% if request.user.is_active %}
+              Active
+            {% else %}
+              Disabled
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="font-weight-bold">Role</td>
+          <td>            
+            {% if request.user.is_superuser %}
+              Admin
+            {% endif %}  
+          </td>
+        </tr>
+        <tr class="mb-0">
+          <td  colspan="2" class="mb-0" >
+            <a type="button" class="btn btn-primary btn-lg btn-block mb-0 text-white font-weight-bold" href="{% url 'edit_profile' %}">Edit Profile</a>
+          </td>
+        </tr>
+      </tbody>
+      
+    </table>
+  </div>
+</div>
+
+
+</div>
+
+{% endblock %}
