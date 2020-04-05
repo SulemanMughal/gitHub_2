@@ -21,7 +21,8 @@ def phoneNumberValidator(value):
                 _('The phone number format should be "05xxxxxxxx"'),
             )
         else:
-            value = int(value)
+            int(value)
+            return value
     except ValueError:
         raise ValidationError(
             _('The phone number format should be "05xxxxxxxx"'),
@@ -35,6 +36,24 @@ def integerValidator(value):
     else:
         value
 
+
+def convertToInteger(value):
+    try:
+        if len(value)!= 10:
+            # print(len(value))
+            # print("11111111")
+            raise ValidationError(
+                _('The number should be of 10 digits.'),
+            )
+        else:
+            # print("2222222222222")
+            int(value)
+            return value
+    except ValueError:
+        # print("33333333333333333")
+        raise ValidationError(
+                _('The number should be of 10 digits.'),
+            )
 
 
 
@@ -123,11 +142,11 @@ class Sector(models.Model):
 class Client_Personal_Info(models.Model):
     Name            =   models.CharField(max_length=300, blank=False)
     Email           =   models.EmailField(max_length=300, blank=False)
-    Phone_Number    =   models.CharField(max_length=10, verbose_name="Contact Number", validators = [ phoneNumberValidator ], default="0500000000", blank=False)
+    Phone_Number    =   models.CharField(max_length=10, verbose_name="Phone Number", validators = [ phoneNumberValidator ],  blank=False)
     company_name    =   models.CharField(max_length=300)
-    CR              =   models.CharField(max_length=10)
+    CR              =   models.CharField(max_length=10, verbose_name="CR", validators = [convertToInteger], blank=False)
     location        =   models.CharField(max_length=300)
-    contact_number  =   models.CharField(max_length=10, validators = [ phoneNumberValidator ], default="0500000000", verbose_name="Contact Number")
+    contact_number  =   models.CharField(max_length=10, validators = [ phoneNumberValidator ], verbose_name="Contact Number")
     sector          =   models.ForeignKey(Sector, on_delete=models.CASCADE)
     Number_of_branches =   models.IntegerField(validators = [ integerValidator ], verbose_name="Number of Branches", default=0)
     Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =0 )
@@ -137,7 +156,7 @@ class Client_Personal_Info(models.Model):
     package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidator ])
     paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
-    last_update = models.DateTimeField(auto_now_add=False, verbose_name="Last Update", default=timezone.now)
+    last_update = models.DateTimeField(auto_now_add=True, verbose_name="Last Update")
     managerRelational = models.ForeignKey(relationManager, on_delete=models.CASCADE, verbose_name="RM")
 
     class Meta:

@@ -41,15 +41,17 @@
           {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
           
           
+          {% if cl.search_fields %}
+          {% block search %}{% search_form cl %}{% endblock %}
+      {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
 
+          {% endif %}
 
           {% if cl.has_filters %}
 
       
         
         <div class="module{% if cl.has_filters %} filtered{% endif %} border p-2 border-0" id="changelist">
-          {% block search %}{% search_form cl %}{% endblock %}
-      {% block date_hierarchy %}{% if cl.date_hierarchy %}{% date_hierarchy cl %}{% endif %}{% endblock %}
 
       {% block filters %}
       {% if cl.has_filters %}

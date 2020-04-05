@@ -169,8 +169,8 @@
                         <tbody>
                             
                             {% for j in documents %}
-                                {% if j.id|findClientDocumet %}
-                                    {% for i in j.id|findClientDocumet %}
+                                {% if j.id|findClientDocumet:client.id %}
+                                    {% for i in j.id|findClientDocumet:client.id %}
                                             <tr>
                                                 <td>
                                                     <div class="custom-control custom-checkbox">

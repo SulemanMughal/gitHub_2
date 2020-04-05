@@ -82,8 +82,8 @@ class ClientRequiredDocumentInline(admin.TabularInline):
     model = ClientRequiredDocuments
     # fk_name = "client"
     # fields = '__all__'
-    extra = 0
-    # max_num = Required_Documents.objects.all().count()-1
+    # extra = 0
+    max_num = Required_Documents.objects.all().count()
     min_num = 0
     # fields = (
     #             (
@@ -100,6 +100,12 @@ class ClientRequiredDocumentInline(admin.TabularInline):
     )
 
     can_delete = False
+
+    def get_extra(self, request, obj=None, **kwargs):
+        extra = 0
+        if obj:
+            return extra - obj.clientrequireddocuments_set.count()
+        return extra
 
 
 
@@ -334,9 +340,9 @@ class Required_DocumentsAdmin(admin.ModelAdmin):
     # fileUploadType.empty_value_display = "empty"
 
 class Client_Personal_InfoAdmin(admin.ModelAdmin):
-    # readonly_fields = [
-    #     'quoteStatus'
-    # ]
+    readonly_fields = [
+        'last_update'
+    ]
     inlines = [
         ClientRequiredDocumentInline,
     ]
@@ -448,6 +454,10 @@ class SectorAdmin(admin.ModelAdmin):
 
     ]
     list_per_page = 10
+
+    list_filter = [
+        # 'Name'
+    ]
 
 class clientInvoiceAdmin(admin.ModelAdmin):
     list_display=[
@@ -687,30 +697,6 @@ class clientInvoiceAdmin(admin.ModelAdmin):
             'admin/change_list.html'
         ], context)
 
-# class SubscriptionInformationAdmin(admin.ModelAdmin):
-#     list_display=[
-#         'Services',
-#         'Number_of_subaccounts',
-#         'package_price',
-#         'paymenStatus'
-#     ]
-#     search_fields = [
-#         'Services'
-#     ]
-#     list_filter = [
-#         'paymenStatus'
-#     ]
-#     list_display_links=[
-#         'Services'
-#     ]
-#     ordering = [
-#         'paymenStatus'
-#     ]
-#     sortable_by = [
-#         'paymenStatus'
-#     ]
-#     list_per_page = 10
-
 class relationManagerAdmin(admin.ModelAdmin):
     list_display = [
         'RM'
@@ -718,10 +704,7 @@ class relationManagerAdmin(admin.ModelAdmin):
     search_fields=[
         'manager__username'
     ]
-    # list_filter
-    # list_display_links
-    # ordering
-    # sortable_by
+
     list_per_page = 10
 
     def RM(self, obj):
@@ -769,13 +752,6 @@ class clientReportAdmin(admin.ModelAdmin):
         ]
         return my_urls + urls
 
-
-
-
-
-
-
-
     def clientReports(self, obj):
         url= reverse("admin:webaccount_client_reports_url", args = [obj.client.pk])
         clinet_id_numer = "View Client # " + str(obj.client.pk) + " Reports"
@@ -796,7 +772,6 @@ class clientReportAdmin(admin.ModelAdmin):
     reportDurationTime.short_description = "Period"
     formatFinalreportIssueDate.short_description="Final Report Issue Date"
 
-    
     def get_changelist_view_report(self, request ,num):
         # Change "list_display"
         list_display = [
