@@ -28,10 +28,12 @@ SECRET_KEY = '(3f*0tcfa_y)mm+sj^v(iavy+ww$m18&dv1_q609xz336fwz31'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+PROTOCOL = ""
 
 # ALLOWED_HOSTS = ['167.172.128.142']
 # ALLOWED_DOMAINS = ['167.172.128.142']
+
+PORT = []
 
 # Application definition
 

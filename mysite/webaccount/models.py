@@ -12,7 +12,12 @@ now = timezone.now()
 
 # Create your models here.
 
-
+IMAGE_FILE_EXTENSION = [
+    "BMP",
+    "JPG",
+    "GIF",
+    "PNG"
+]
 
 def phoneNumberValidator(value):
     try:
@@ -29,7 +34,7 @@ def phoneNumberValidator(value):
         )
 
 def integerValidator(value):
-    if value < 0:
+    if value <= 0:
         raise ValidationError(
                 _('The number should be greater than "0"'),
             )
@@ -148,8 +153,8 @@ class Client_Personal_Info(models.Model):
     location        =   models.CharField(max_length=300)
     contact_number  =   models.CharField(max_length=10, validators = [ phoneNumberValidator ], verbose_name="Contact Number")
     sector          =   models.ForeignKey(Sector, on_delete=models.CASCADE)
-    Number_of_branches =   models.IntegerField(validators = [ integerValidator ], verbose_name="Number of Branches", default=0)
-    Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =0 )
+    Number_of_branches =   models.IntegerField(validators = [ integerValidator ], verbose_name="Number of Branches", default=1)
+    Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =1 )
     QR_code         =   models.FileField()
     Services                    =   models.CharField(max_length=300,choices=service) 
     Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidator ])
@@ -157,7 +162,7 @@ class Client_Personal_Info(models.Model):
     paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
     last_update = models.DateTimeField(auto_now_add=True, verbose_name="Last Update")
-    managerRelational = models.ForeignKey(relationManager, on_delete=models.CASCADE, verbose_name="RM")
+    managerRelational = models.ForeignKey(relationManager, on_delete=models.CASCADE, verbose_name="RM", blank = True, null=True)
 
     class Meta:
         verbose_name = "Client Personal Information"
@@ -165,6 +170,16 @@ class Client_Personal_Info(models.Model):
 
     def __str__(self):
         return self.Name
+
+
+    def save(self, *args, **kwargs):
+        self.last_update = timezone.now()
+        if self.paymenStatus == "Paid":
+            self.status = "Active"
+        if self.paymenStatus != "Paid" or self.status != "Active":
+            self.managerRelational = None
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+        
     
 class clientReport(models.Model):
     client = models.ForeignKey(Client_Personal_Info, on_delete = models.CASCADE)
@@ -217,3 +232,37 @@ class ClientRequiredDocuments(models.Model):
     def __str__(self):
         return str(self.client.Name)  + "'s " + str(self.document)
 
+
+    # def get_absolute_url(self):
+    # return "/people/%i/" % self.id
+
+    # def clean(self, *args, **kwargs):
+    #     # print(self.__dict__)
+    #     u = None
+    #     t = None
+    #     if self.document:
+    #         t = self.document.file_type
+    #     if self.uploadFile:
+    #         u = self.uploadFile.name.split(".")[-1]
+    #     print(t)
+    #     if u is not None and t is not None:
+    #         if u == t:
+    #             super().save(*args, **kwargs)  # Call the "real" save() method.
+    #         else:
+    #             if self.id is None:
+    #                 return "admin/webaccount/clientrequireddocuments/add/"
+    #             else:
+    #                 return "admin/webaccount/clientrequireddocuments/change/{i}".format(i = self.id)
+    #     else:
+    #         if self.id is None:
+    #             return "admin/webaccount/clientrequireddocuments/add/"
+    #         else:
+    #             return "admin/webaccount/clientrequireddocuments/change/{i}".format(i = self.id)
+
+    def clean(self):
+        if self.document.file_type == "image":
+            if self.uploadFile.name.split(".")[-1] not in IMAGE_FILE_EXTENSION:
+                raise ValidationError(_('Uploded document type and the selected document type must be same.'))
+        else:
+            if self.document.file_type != self.uploadFile.name.split(".")[-1]:
+                raise ValidationError(_('Uploded document type and the selected document type must be same.'))

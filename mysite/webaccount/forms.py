@@ -23,7 +23,7 @@ from django.contrib import messages
 UserModel = get_user_model()
 
 from .models import *
-
+from django.conf import settings
 
 
 class ReadOnlyPasswordHashWidget(forms.Widget):
@@ -177,9 +177,20 @@ class UserCreationForm(forms.ModelForm):
         # user: user,
         token= default_token_generator.make_token(user)
         # print("**************", uid, token, "**************")
-        domain = "127.0.0.1:8000"
-        protocol = "http"
-        
+        if len(settings.ALLOWED_HOSTS) != 0:
+            if len(settings.PORT) !=0:
+                domain = str(settings.ALLOWED_HOSTS[0]) + ":" + str(settings.PORT[0])
+            else:
+                domain = str(settings.ALLOWED_HOSTS[0]) + ":" + str("8000")
+        else:
+            domain = "127.0.0.1:8000"
+        if len(settings.PROTOCOL) != 0:
+            if len(settings.ALLOWED_HOSTS) != 0:
+                protocol = settings.PROTOCOL
+            else:
+                protocol = "http"
+        else:
+            protocol = "http"
         message = render_to_string('webaccount/password_set_user.html', {
             'user':user, 
             'domain':domain,

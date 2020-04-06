@@ -138,8 +138,8 @@ class UserAdmin(admin.ModelAdmin):
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
     # list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    list_display = ('username', 'is_staff')
-    list_filter = ( 'is_superuser',)
+    list_display = ('username', 'is_staff', 'is_active')
+    list_filter = ( 'is_superuser','is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ( '-is_superuser', '-is_active' ,'-is_staff' , 'username')
     # filter_horizontal = ('groups', 'user_permissions',)

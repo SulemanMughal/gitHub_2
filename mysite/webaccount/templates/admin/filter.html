@@ -23,6 +23,8 @@
 }
 </style>
 
+
+
 <div class="dropdown mt-1 mb-1 mr-2">
     <button class="btn btn-primary dropdown-toggle w-200 text-left" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 
@@ -38,6 +40,8 @@
             {{ spec.title }}&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
             {% elif title == "superuser status" %}
                 Role&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            {% elif title == "active" %}
+                Active&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
             {% elif title == "Name" %}
                 Name&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
             {% elif title == "Activate" %}
@@ -52,7 +56,25 @@
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       {% for choice in choices %}
-        <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
+        {% if spec.title == "superuser status" %}
+            {% if choice.display != "All" %}
+                {% if choice.display == "Yes" %}
+                    <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">Admin</a>
+                {% elif choice.display == "No" %}
+                    <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">Relational Manager</a>
+                {% endif %}
+            {% endif %}
+        {% elif spec.title == "active" %}
+            {% if choice.display != "All" %}
+                {% if choice.display == "Yes" %}
+                    <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">Active</a>
+                {% elif choice.display == "No" %}
+                    <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">Disabled</a>
+                {% endif %}
+            {% endif %}
+        {% else %}
+            <a class="dropdown-item" href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
+        {% endif %}
     {% endfor %}
     </div>
   </div>
