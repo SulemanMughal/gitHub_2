@@ -171,13 +171,18 @@ class Client_Personal_Info(models.Model):
     def __str__(self):
         return self.Name
 
-
-    def save(self, *args, **kwargs):
+    def clean(self, *args, **kwargs):
         self.last_update = timezone.now()
-        if self.paymenStatus == "Paid":
-            self.status = "Active"
+        if self.status == "Active":
+            if self.paymenStatus == "Paid":
+                self.status = "Active"
+            else:
+                self.status = "Pending"
+                raise ValidationError(_('Client Account can not be activated  until the payment is completed.'))    
         if self.paymenStatus != "Paid" or self.status != "Active":
             self.managerRelational = None
+            raise ValidationError(_('You cannot assign a relationship manager until the payment is completed and the account is active.'))
+            
         super().save(*args, **kwargs)  # Call the "real" save() method.
         
     
@@ -231,33 +236,6 @@ class ClientRequiredDocuments(models.Model):
 
     def __str__(self):
         return str(self.client.Name)  + "'s " + str(self.document)
-
-
-    # def get_absolute_url(self):
-    # return "/people/%i/" % self.id
-
-    # def clean(self, *args, **kwargs):
-    #     # print(self.__dict__)
-    #     u = None
-    #     t = None
-    #     if self.document:
-    #         t = self.document.file_type
-    #     if self.uploadFile:
-    #         u = self.uploadFile.name.split(".")[-1]
-    #     print(t)
-    #     if u is not None and t is not None:
-    #         if u == t:
-    #             super().save(*args, **kwargs)  # Call the "real" save() method.
-    #         else:
-    #             if self.id is None:
-    #                 return "admin/webaccount/clientrequireddocuments/add/"
-    #             else:
-    #                 return "admin/webaccount/clientrequireddocuments/change/{i}".format(i = self.id)
-    #     else:
-    #         if self.id is None:
-    #             return "admin/webaccount/clientrequireddocuments/add/"
-    #         else:
-    #             return "admin/webaccount/clientrequireddocuments/change/{i}".format(i = self.id)
 
     def clean(self):
         if self.document.file_type == "image":

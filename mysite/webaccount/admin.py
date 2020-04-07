@@ -138,7 +138,11 @@ class UserAdmin(admin.ModelAdmin):
     add_form = UserCreationForm
     change_password_form = AdminPasswordChangeForm
     # list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    list_display = ('username', 'is_staff', 'is_active')
+    list_display = [
+            'username', 
+            'getSuperuser', 
+            'getActiveStatus'
+    ]
     list_filter = ( 'is_superuser','is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ( '-is_superuser', '-is_active' ,'-is_staff' , 'username')
@@ -147,6 +151,19 @@ class UserAdmin(admin.ModelAdmin):
     sortable_by = [
         '-is_superuser'
     ]
+
+    def getSuperuser(self, obj):
+        if obj.is_superuser:
+            return "Admin"
+        return "Relational Manager"
+
+    def getActiveStatus(self, obj):
+        if obj.is_active:
+            return "Active"
+        return "Disabled"
+
+    getSuperuser.short_description = "Role"
+    getActiveStatus.short_description = "Status"
 
     def get_fieldsets(self, request, obj=None):
         if not obj:

@@ -26,6 +26,16 @@ from .models import *
 from django.conf import settings
 
 
+ADMIN_RIGHTS=[
+    (True, 'Admin'),
+    (False,'Relational Manager')
+]
+
+ACCOUNT_STATUS = [
+    (True, 'Active'),
+    (False, 'Disabled')
+]
+
 class ReadOnlyPasswordHashWidget(forms.Widget):
     template_name = 'auth/widgets/read_only_password_hash.html'
     read_only = True
@@ -237,14 +247,8 @@ class UserCreationForm(forms.ModelForm):
 
 
 class UserChangeForm(forms.ModelForm):
-    # password = ReadOnlyPasswordHashField(
-    #     label=_("Password"),
-    #     help_text=_(
-    #         "Raw passwords are not stored, so there is no way to see this "
-    #         "user's password."
-    #     ),
-        
-    # )
+    is_superuser = forms.ChoiceField(choices = ADMIN_RIGHTS, label="Role")
+    is_active = forms.ChoiceField(choices = ACCOUNT_STATUS, label="Satus")
 
     class Meta:
         model = User
@@ -255,8 +259,8 @@ class UserChangeForm(forms.ModelForm):
             'last_name',
             'email',
             'is_staff', 
-            'is_superuser', 
-            'is_active'
+            # 'is_superuser', 
+            # 'is_active'
         ]
         field_classes = {'username': UsernameField}
 
@@ -277,25 +281,6 @@ class UserChangeForm(forms.ModelForm):
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
         return self.initial.get('password')
-
-    
-    # def _post_clean(self):
-    #     mail_subject = "Password Set Link"
-    #     to_email = self.cleaned_data.get("email", settings.EMAIL_HOST_USER)
-    #     message = "Tetsirt"
-    #     # print(self.request)
-    #     print(self)
-    #     # print( User.objects.get( username = self._meta.model.USERNAME_FIELD))
-    #     email = EmailMessage(mail_subject, message, to=[to_email])
-    #     email.send()
-    #     return super()._post_clean()
-
-    # def save(self, *args, **kwargs):
-    #     # do_something()
-    #     print("Save")
-    #     # super().save(*args, **kwargs)  # Call the "real" save() method.
-    #     # do_something_else()
-    #     self.uesr.sace
 
     
 #User Can Edit his profile using this Form..........................
