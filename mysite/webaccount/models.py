@@ -145,10 +145,10 @@ class Sector(models.Model):
         return self.Name
 
 class Client_Personal_Info(models.Model):
-    Name            =   models.CharField(max_length=300, blank=False)
-    Email           =   models.EmailField(max_length=300, blank=False)
-    Phone_Number    =   models.CharField(max_length=10, verbose_name="Phone Number", validators = [ phoneNumberValidator ],  blank=False)
-    company_name    =   models.CharField(max_length=300)
+    Name            =   models.CharField(max_length=300, blank=False, unique = True)
+    Email           =   models.EmailField(max_length=300, blank=False, unique = True)
+    Phone_Number    =   models.CharField(max_length=10, verbose_name="Phone Number", validators = [ phoneNumberValidator ],  blank=False, unique = True)
+    company_name    =   models.CharField(max_length=300, verbose_name="Company Name")
     CR              =   models.CharField(max_length=10, verbose_name="CR", validators = [convertToInteger], blank=False)
     location        =   models.CharField(max_length=300)
     contact_number  =   models.CharField(max_length=10, validators = [ phoneNumberValidator ], verbose_name="Contact Number")
@@ -156,7 +156,7 @@ class Client_Personal_Info(models.Model):
     Number_of_branches =   models.IntegerField(validators = [ integerValidator ], verbose_name="Number of Branches", default=1)
     Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =1 )
     QR_code         =   models.FileField()
-    Services                    =   models.CharField(max_length=300,choices=service) 
+    Services                    =   models.CharField(max_length=300) 
     Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidator ])
     package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidator ])
     paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
@@ -173,6 +173,8 @@ class Client_Personal_Info(models.Model):
 
     def clean(self, *args, **kwargs):
         self.last_update = timezone.now()
+        # print(self.Services)
+        self.Services = self.Services
         if self.status == "Active":
             if self.paymenStatus == "Paid":
                 self.status = "Active"
@@ -180,9 +182,8 @@ class Client_Personal_Info(models.Model):
                 self.status = "Pending"
                 raise ValidationError(_('Client Account can not be activated  until the payment is completed.'))    
         if self.paymenStatus != "Paid" or self.status != "Active":
-            self.managerRelational = None
-            raise ValidationError(_('You cannot assign a relationship manager until the payment is completed and the account is active.'))
-            
+            if self.managerRelational is not None:
+                raise ValidationError(_('You cannot assign a relationship manager until the payment is completed and the account is active.'))
         super().save(*args, **kwargs)  # Call the "real" save() method.
         
     

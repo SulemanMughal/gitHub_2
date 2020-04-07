@@ -20,7 +20,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.shortcuts import render,redirect
 from django.contrib import messages
-UserModel = get_user_model()
+# UserModel = get_user_model()
 
 from .models import *
 from django.conf import settings
@@ -317,3 +317,35 @@ class Required_DocumentsForm(forms.ModelForm):
                 A = ""+self.cleaned_data.get("Name") + "." + self.cleaned_data.get("file_type") + " already exists."
                 raise forms.ValidationError(A)
         return self.cleaned_data
+
+
+class Client_Personal_Info_Form(forms.ModelForm):
+    Services = forms.MultipleChoiceField(choices= service)
+    class Meta:
+        model = Client_Personal_Info
+        fields = [
+                "Name",
+                "Email",
+                "Phone_Number",
+                "company_name",
+                "CR",
+                "location",
+                "contact_number",
+                "sector",
+                "Number_of_branches",
+                "Number_of_employees",
+                "QR_code",
+                # "Services",
+                "Number_of_subaccounts",
+                "package_price",
+                "paymenStatus",
+                "status",
+                # "last_update",
+                "managerRelational"
+        ]
+
+    def __init__(self,  *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # print(self.initial=)
+        # print(list(service))
+        self.initial['Services'] = [ str(i[0]) for i in service ]

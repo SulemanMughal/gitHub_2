@@ -33,7 +33,7 @@ from django.contrib.admin.utils import (
     get_deleted_objects, lookup_needs_distinct, model_format_dict,
     model_ngettext, quote, unquote,
 )
-from .forms import UserCreationForm, UserChangeForm, Required_DocumentsForm
+from .forms import UserCreationForm, UserChangeForm, Required_DocumentsForm,Client_Personal_Info_Form
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
 from django.contrib.admin.exceptions import (
@@ -360,6 +360,7 @@ class Client_Personal_InfoAdmin(admin.ModelAdmin):
     readonly_fields = [
         'last_update'
     ]
+    form = Client_Personal_Info_Form
     inlines = [
         ClientRequiredDocumentInline,
     ]
