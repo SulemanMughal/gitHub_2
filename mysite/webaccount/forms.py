@@ -23,6 +23,7 @@ from django.contrib import messages
 # UserModel = get_user_model()
 
 from .models import *
+from accounts.models import *
 from django.conf import settings
 
 
@@ -35,6 +36,8 @@ ACCOUNT_STATUS = [
     (True, 'Active'),
     (False, 'Disabled')
 ]
+
+# RELATIONAL_MANAGER_CHOICES = [(str(r), str(r)) for r in User.objects.filter(is_superuser = False, is_active  = True)]
 
 class ReadOnlyPasswordHashWidget(forms.Widget):
     template_name = 'auth/widgets/read_only_password_hash.html'
@@ -111,31 +114,6 @@ class UserCreationForm(forms.ModelForm):
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD].widget.attrs.update({'autofocus': True})
 
-    # def clean_username(self):
-    #     # password1 = self.cleaned_data.get("password1")
-    #     # password2 = self.cleaned_data.get("password2")
-    #     # if password1 and password2 and password1 != password2:
-    #     #     raise forms.ValidationError(
-    #     #         self.error_messages['password_mismatch'],
-    #     #         code='password_mismatch',
-    #     #     )
-    #     # return password2
-    #     if self.cleaned_data.get("username") == '':
-    #         raise forms.ValidationError("Username is empty")
-    #     return self.cleaned_data.get("username")
-
-    # def clean(self):
-    #     clean_data = self.cleaned_data
-    #     if clean_data.get("username") == '':
-    #         raise forms.ValidationError("Error")
-    #     return clean_data
-
-    # def clean_username(self):
-    #     data = self.cleaned_data.get("username")
-    #     if data is None:
-    #         forms.ValueError("sdjfnkjsdnfkjsdf")
-    #     return data
-
     def _post_clean(self):
         try:
             # clean_data = self.cleaned_data
@@ -211,6 +189,7 @@ class UserCreationForm(forms.ModelForm):
         email = EmailMessage(mail_subject, message, to=[to_email])
         email.send()
         password = self.cleaned_data.get('password2')
+
         # if self.cleaned_data.get("username") == "":
         #     forms.ValidationError("sdkfsdknfsdnf")
         if password:
@@ -222,7 +201,10 @@ class UserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         # if self.clean_data.get("username"):
         #     raise forms.ValidationError("aslldknaslkdnaslkd")
+
         user = super().save(commit=False)
+        # global RELATIONAL_MANAGER_CHOICES
+        # RELATIONAL_MANAGER_CHOICES += [str(user), str(user)]
         # print(self.cleaned_data)
         if self.cleaned_data.get("password1"):
             user.set_password(self.cleaned_data["password1"])
@@ -349,3 +331,50 @@ class Client_Personal_Info_Form(forms.ModelForm):
         # print(self.initial=)
         # print(list(service))
         self.initial['Services'] = [ str(i[0]) for i in service ]
+
+
+from accounts.models import *
+class RelationalManagerForm(forms.ModelForm):
+    # manager = forms.
+    # choices = [
+    #     (str(r), str(r) for r in )
+    # ]
+    # obj = User.objects.filter(is_superuser = False)
+    # global RELATIONAL_MANAGER_CHOICES
+    # choices = RELATIONAL_MANAGER_CHOICES
+    # print(choices)
+
+    # manager = forms.ChoiceField(label = "Relational Manager", choices = choices)
+    class Meta:
+        model = relationManager
+        fields = [
+            'manager'
+        ]
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        self.fields['manager'].queryset = User.objects.filter(is_superuser = False, is_active = True)
+    
+    # def __init__(self,*args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     # print(self.initial=)
+    #     # print(list(service))
+    #     # global RELATIONAL_MANAGER_CHOICES
+    #     # self.initial['manager'] = RELATIONAL_MANAGER_CHOICES
+    # # def clean(self):
+    # #     print(self.cleaned_data)
+    # #     print(self.instance)
+    # #     return self.cleaned_data
+
+    # def clean_manager(self):
+    #     # print(self.cleaned_data)
+    #     user = User.objects.get(username = self.cleaned_data.get("manager"))
+    #     # print(self.__dict__)
+    #     # print(user)
+    #     return user
+
+    # # def save(self)
+
+    # # def save(self):
+    #     # print(self.__dict__)

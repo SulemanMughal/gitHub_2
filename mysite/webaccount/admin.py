@@ -1,6 +1,6 @@
 # from django.contrib import admin
 from django.contrib.admin import AdminSite
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import  Group
 
 from django.conf import settings
 from django.contrib import admin, messages
@@ -33,7 +33,7 @@ from django.contrib.admin.utils import (
     get_deleted_objects, lookup_needs_distinct, model_format_dict,
     model_ngettext, quote, unquote,
 )
-from .forms import UserCreationForm, UserChangeForm, Required_DocumentsForm,Client_Personal_Info_Form
+from .forms import UserCreationForm, UserChangeForm, Required_DocumentsForm,Client_Personal_Info_Form, RelationalManagerForm
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
 from django.contrib.admin.exceptions import (
@@ -50,6 +50,7 @@ from django.core.exceptions import (
 )
 from django.conf import settings
 from .models import *
+from accounts.models import *
 csrf_protect_m = method_decorator(csrf_protect)
 sensitive_post_parameters_m = method_decorator(sensitive_post_parameters())
 
@@ -122,7 +123,7 @@ class UserAdmin(admin.ModelAdmin):
     change_user_password_template = None
     fieldsets = (
         (None, {'fields': ('username', "email")}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name',)}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name','contactNumber')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser'),
         }),
@@ -727,6 +728,8 @@ class relationManagerAdmin(admin.ModelAdmin):
 
     def RM(self, obj):
         return obj.manager
+
+    form = RelationalManagerForm
     
     RM.short_description = "Relational Manager"
 

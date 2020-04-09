@@ -39,6 +39,7 @@ PORT = []
 
 INSTALLED_APPS = [
     # 'django.contrib.admin',
+    'accounts',
     "webaccount.apps.MyAdminConfig",
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,6 +77,8 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTH_USER_MODEL = 'accounts.User'
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 

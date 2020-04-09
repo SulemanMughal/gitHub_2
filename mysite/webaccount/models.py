@@ -19,6 +19,15 @@ IMAGE_FILE_EXTENSION = [
     "PNG"
 ]
 
+def integerValidatorAccounts(value):
+    if value < 0:
+        raise ValidationError(
+                _('The number should be equal to or greater than "0"'),
+            )
+    else:
+        value
+
+
 def phoneNumberValidator(value):
     try:
         if value[0:2] != "05" or len(value)!= 10 :
@@ -133,7 +142,6 @@ PAYMENT_TYPE_CHOICE = [
 
 class relationManager(models.Model):
     manager = models.ForeignKey(get_user_model(), on_delete = models.CASCADE)
-    contactNumber = models.CharField(max_length=10, verbose_name="Contact Number", blank = False, default = '', validators = [ phoneNumberValidator ])
 
     def __str__(self):
         return self.manager.username
@@ -157,7 +165,7 @@ class Client_Personal_Info(models.Model):
     Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =1 )
     QR_code         =   models.FileField()
     Services                    =   models.CharField(max_length=300) 
-    Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidator ])
+    Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidatorAccounts ], default = 0, blank=False)
     package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidator ])
     paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
