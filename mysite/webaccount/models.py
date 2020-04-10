@@ -14,9 +14,13 @@ now = timezone.now()
 
 IMAGE_FILE_EXTENSION = [
     "BMP",
+    "bmp",
     "JPG",
+    "jpg",
     "GIF",
-    "PNG"
+    "gif",
+    "PNG",
+    "png"
 ]
 
 def integerValidatorAccounts(value):
@@ -166,7 +170,7 @@ class Client_Personal_Info(models.Model):
     QR_code         =   models.FileField()
     Services                    =   models.CharField(max_length=300) 
     Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidatorAccounts ], default = 0, blank=False)
-    package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidator ])
+    package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidatorAccounts ], default = 0, blank=False)
     paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
     last_update = models.DateTimeField(auto_now_add=True, verbose_name="Last Update")
@@ -244,7 +248,10 @@ class ClientRequiredDocuments(models.Model):
         verbose_name_plural = "Client Documents"
 
     def __str__(self):
-        return str(self.client.Name)  + "'s " + str(self.document)
+        try:
+            return str(self.client.Name) + "'s " + str(self.document)
+        except:
+            return str(self.client.Name) 
 
     def clean(self):
         if self.document.file_type == "image":

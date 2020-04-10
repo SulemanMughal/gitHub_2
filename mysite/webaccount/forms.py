@@ -20,6 +20,8 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.shortcuts import render,redirect
 from django.contrib import messages
+from django.forms import BaseModelFormSet
+
 # UserModel = get_user_model()
 
 from .models import *
@@ -330,6 +332,11 @@ class Client_Personal_Info_Form(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # print(self.initial=)
         # print(list(service))
+        # self.initial['Services'] = [ str(i[0]) for i in self.fields["Services"] ]
+        # self.initial['Services'] = str(self.instance.Services)
+        # print(self.initial['Services'] )
+        # print(self.__dict__)
+        # self.initial['Services'] = str(self['Services'])
         self.initial['Services'] = [ str(i[0]) for i in service ]
 
 
@@ -378,3 +385,20 @@ class RelationalManagerForm(forms.ModelForm):
 
     # # def save(self):
     #     # print(self.__dict__)
+
+
+# CLient Documents Inline Forms
+
+class BaseDocumentFormSet(forms.ModelForm):
+    
+    # Initialize Method
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.queryset = Author.objects.filter(name__startswith='O')
+        # print("Helo")
+
+    # # Clean Method
+    # def clean(self):
+    #     print("********************************************")
+    #     print(self.__dict__)
+    #     print("******************************************************************")

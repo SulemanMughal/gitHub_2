@@ -33,7 +33,14 @@ from django.contrib.admin.utils import (
     get_deleted_objects, lookup_needs_distinct, model_format_dict,
     model_ngettext, quote, unquote,
 )
-from .forms import UserCreationForm, UserChangeForm, Required_DocumentsForm,Client_Personal_Info_Form, RelationalManagerForm
+from .forms import (
+    UserCreationForm, 
+    UserChangeForm, 
+    Required_DocumentsForm,
+    Client_Personal_Info_Form, 
+    RelationalManagerForm,
+    BaseDocumentFormSet
+)
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
 from django.contrib.admin.exceptions import (
@@ -81,6 +88,7 @@ class invoiceChangeList(ChangeList):
 # Inline Models Admin...
 class ClientRequiredDocumentInline(admin.TabularInline):
     model = ClientRequiredDocuments
+    form = BaseDocumentFormSet
     # fk_name = "client"
     # fields = '__all__'
     # extra = 0
@@ -103,7 +111,7 @@ class ClientRequiredDocumentInline(admin.TabularInline):
     can_delete = False
 
     def get_extra(self, request, obj=None, **kwargs):
-        extra = 0
+        extra = self.max_num+1
         if obj:
             return extra - obj.clientrequireddocuments_set.count()
         return extra
