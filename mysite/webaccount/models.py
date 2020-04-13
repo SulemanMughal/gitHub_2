@@ -8,6 +8,7 @@ from django.urls import path
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.db import IntegrityError
 now = timezone.now()
 
 # Create your models here.
@@ -73,7 +74,17 @@ def convertToInteger(value):
                 _('The number should be of 10 digits.'),
             )
 
-
+# IntegrityError For Client Sector Field
+def checkIntegrityError(value):
+    try:
+        if value is None:
+            raise ValidationError(
+                _('Sector field is empty.'),
+            )
+    except:
+        raise ValidationError(
+            _('Sector field is empty.'),
+        )
 
 service=(
 ('BookKeeping','BookKeeping'),
@@ -157,21 +168,188 @@ class Sector(models.Model):
         return self.Name
 
 class Client_Personal_Info(models.Model):
-    Name            =   models.CharField(max_length=300, blank=False, unique = True)
-    Email           =   models.EmailField(max_length=300, blank=False, unique = True)
-    Phone_Number    =   models.CharField(max_length=10, verbose_name="Phone Number", validators = [ phoneNumberValidator ],  blank=False, unique = True)
-    company_name    =   models.CharField(max_length=300, verbose_name="Company Name")
-    CR              =   models.CharField(max_length=10, verbose_name="CR", validators = [convertToInteger], blank=False)
-    location        =   models.CharField(max_length=300)
-    contact_number  =   models.CharField(max_length=10, validators = [ phoneNumberValidator ], verbose_name="Contact Number")
-    sector          =   models.ForeignKey(Sector, on_delete=models.CASCADE)
-    Number_of_branches =   models.IntegerField(validators = [ integerValidator ], verbose_name="Number of Branches", default=1)
-    Number_of_employees =   models.IntegerField(validators = [ integerValidator ], verbose_name = "Number of Employees", default =1 )
+    Name    =   models.CharField(
+                max_length      =   300, 
+                blank           =   False, 
+                unique          =   False,
+                null            =   False,
+                error_messages  =   {
+                    'blank'     :   "Name field is empty.",
+                    'null'      :   "Name field is empty."
+                },
+                verbose_name = "Name"
+            )
+    Email   =   models.EmailField(
+                    max_length=300, 
+                    blank=False, 
+                    unique = True,
+                    null = False,
+                    verbose_name = "Email",
+                    error_messages  =   {
+                    'blank'     :   "Email field is empty.",
+                    'null'      :   "Email field is empty.",
+                    'unique'    :   "Already exists."
+                },
+            )
+    Phone_Number    =   models.CharField(
+        max_length=10, 
+        verbose_name="Phone Number", 
+        validators = [ phoneNumberValidator ],  
+        blank=False, 
+        unique = True,
+        null = False,
+        error_messages  =   {
+            'blank'     :   "Phone Number is required.",
+            'null'      :   "Phone Number is required.",
+            'unique'    :   "Already exists."
+        }
+        )
+    company_name    =   models.CharField(
+        max_length=300, 
+        verbose_name="Company Name",
+        blank = False,
+        unique = False,
+        null = False,
+        error_messages  =   {
+            'blank'     :   "Company name is required.",
+            'null'      :   "Company name is required."
+        }
+        )
+    CR  =   models.CharField(
+        max_length      =   10, 
+        verbose_name    =   "CR", 
+        validators      =   [
+                        convertToInteger
+                        ], 
+        blank           =   False,
+        unique          =   True,
+        null = False,
+        error_messages  =   {
+            'blank'     :   "CR is required.",
+            'null'      :   "CR is required.",
+            'unique'    :   "Already exists."
+        }
+    )
+    location        =   models.CharField(
+        max_length=300,
+        verbose_name = "Location",
+        unique = False,
+        blank=False,
+        null = False,
+        error_messages  =   {
+            'blank'     :   "locationlocation is required.",
+            'null'      :   "location is required."
+        }
+        )
+    contact_number  =   models.CharField(
+        max_length=10, 
+        validators = [ 
+                phoneNumberValidator 
+            ], 
+        verbose_name="Contact Number",
+        blank=False,
+        null = False,
+        unique = False,
+        error_messages  =   {
+            'blank'     :   "location is required.",
+            'null'      :   "location is required."
+        }
+        )
+    sector  =   models.ForeignKey(
+        Sector, 
+        on_delete   =   models.CASCADE,
+        null = False,
+        blank = False,
+        error_messages = {
+            "null":"Sector Field is not selected",
+            "blank":"Sector can not be left as blank."
+        },
+        verbose_name = "Sector",
+        validators = [
+            checkIntegrityError
+        ]
+    )
+    Number_of_branches =   models.IntegerField(
+        validators = [ 
+                integerValidator 
+            ], 
+        verbose_name="Number of Branches", 
+        default=1,
+        blank = False,
+        null = False,
+        unique = False,
+        error_messages = {
+            "null":"Number of Branches Field is not entered",
+            "blank":"Number of Branches can not be left as blank."
+        },
+        )
+    Number_of_employees =   models.IntegerField(
+        validators = [ 
+                integerValidator 
+            ], 
+        verbose_name = "Number of Employees", 
+        default =1,
+        blank = False,
+        null = False,
+        unique = False,
+        error_messages = {
+            "null":"Number of Employees Field is not entered",
+            "blank":"Number of Employees can not be left as blank."
+        },
+        )
     QR_code         =   models.FileField()
-    Services                    =   models.CharField(max_length=300) 
-    Number_of_subaccounts       =   models.IntegerField(verbose_name="Number of Sub-Accounts", validators = [ integerValidatorAccounts ], default = 0, blank=False)
-    package_price               =   models.IntegerField(verbose_name = "Package Price", validators = [ integerValidatorAccounts ], default = 0, blank=False)
-    paymenStatus  = models.CharField(max_length = 15, choices = PAYMENT_TYPE_CHOICE, default= "Pending", verbose_name = "Subscription Status")
+    Services                    =   models.CharField(
+        max_length=300,
+        verbose_name = "Services",
+        unique = False,
+        blank = False,
+        null = False,
+        error_messages = {
+            "null":"Services Field is not entered",
+            "blank":"Services can not be left as blank."
+        },
+        ) 
+    Number_of_subaccounts       =   models.IntegerField(
+        verbose_name="Number of Sub-Accounts", 
+        validators = [ 
+                integerValidatorAccounts 
+            ], 
+        default = 0, 
+        blank=False,
+        null = False,
+        unique = False,
+        error_messages = {
+            "null":"Number of Sub-Accounts Field is not entered",
+            "blank":"Number of Sub-Accounts can not be left as blank."
+        },
+        )
+    package_price               =   models.IntegerField(
+        verbose_name = "Package Price", 
+        validators = [ 
+            integerValidatorAccounts 
+        ], 
+        default = 0, 
+        blank=False,
+        null = False,
+        unique = False,
+        error_messages = {
+            "null":"Package Price Field is not entered",
+            "blank":"Package Price can not be left as blank."
+        },
+        )
+    paymenStatus  = models.CharField(
+        max_length = 15, 
+        choices = PAYMENT_TYPE_CHOICE, 
+        default= "Pending", 
+        verbose_name = "Subscription Status",
+        blank = False,
+        null = False,
+        unique = False,
+        error_messages = {
+            "null":"Subscription Status Field is not entered",
+            "blank":"Subscription Status can not be left as blank."   
+        }
+        )
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
     last_update = models.DateTimeField(auto_now_add=True, verbose_name="Last Update")
     managerRelational = models.ForeignKey(relationManager, on_delete=models.CASCADE, verbose_name="RM", blank = True, null=True)
@@ -196,7 +374,27 @@ class Client_Personal_Info(models.Model):
         if self.paymenStatus != "Paid" or self.status != "Active":
             if self.managerRelational is not None:
                 raise ValidationError(_('You cannot assign a relationship manager until the payment is completed and the account is active.'))
-        super().save(*args, **kwargs)  # Call the "real" save() method.
+        try:
+            if self.sector is None:
+                raise ValidationError(_('Sector field is empty.'))
+        except :
+            raise ValidationError(_('Sector field is empty.'))
+        # print("*************************************************")
+        # print(Client_Personal_Info.objects.all())
+        try:
+            # self.CR = self.CR
+            # print(self.__dict__)
+            objs = Client_Personal_Info.objects.filter(CR = self.CR)
+            if len(objs) != 0:
+                # print(objs[0])
+                if objs[0].id == self.id:
+                    pass
+                else:
+                    raise ValidationError(_('CR field already.'))
+        except:
+            raise ValidationError(_('CR field already.'))
+        # print("*************************************************")
+        super().save(*args, **kwargs)  
         
     
 class clientReport(models.Model):
@@ -254,9 +452,17 @@ class ClientRequiredDocuments(models.Model):
             return str(self.client.Name) 
 
     def clean(self):
-        if self.document.file_type == "image":
-            if self.uploadFile.name.split(".")[-1] not in IMAGE_FILE_EXTENSION:
-                raise ValidationError(_('Uploded document type and the selected document type must be same.'))
-        else:
-            if self.document.file_type != self.uploadFile.name.split(".")[-1]:
-                raise ValidationError(_('Uploded document type and the selected document type must be same.'))
+        try:
+            self.document = self.document
+        except :
+            raise ValidationError(_('Upload Document Name should be selected.'))
+        if self.document.file_type:
+            # print(self.uploadFile.__dict__)
+            if len(self.uploadFile.name) == 0:
+                raise ValidationError(_('Document has not been uploaded.'))
+            elif self.document.file_type == "image":
+                    if self.uploadFile.name.split(".")[-1] not in IMAGE_FILE_EXTENSION:
+                        raise ValidationError(_('Uploded document type and the selected document type must be same.'))
+            else:
+                if self.document.file_type != self.uploadFile.name.split(".")[-1]:
+                    raise ValidationError(_('Uploded document type and the selected document type must be same.'))

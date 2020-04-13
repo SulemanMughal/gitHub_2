@@ -304,20 +304,120 @@ class Required_DocumentsForm(forms.ModelForm):
 
 
 class Client_Personal_Info_Form(forms.ModelForm):
-    Services = forms.MultipleChoiceField(choices= service)
+    Services = forms.MultipleChoiceField(
+            choices= service, 
+            initial =  [ str(i[0]) for i in service ])
+    Name    =   forms.CharField(
+            max_length  =   300, 
+            min_length  =   0, 
+            label       =   "Name", 
+            widget      =   forms.widgets.TextInput(
+                        attrs={
+                            'autocomplete' : "off"
+                        })
+            # error_messages  =   {
+            #     'required' : "Please enter your name."
+            # }
+        )
+    Email   =   forms.EmailField(
+        label       =   "Email",
+        max_length  =   300,
+        min_length  =   0,
+        widget      =   forms.EmailInput(
+            attrs={
+                'autocomplete' : "off"
+            })   
+    )
+    Phone_Number    =   forms.CharField(
+        label       =   "Phone Number",
+        max_length  =   10,
+        min_length  =   0,
+        widget      =   forms.TextInput(
+            attrs={
+                'autocomplete' : "off"
+            }
+        )
+    )
+    CR              =   forms.CharField(
+        label       =   "CR",
+        max_length  =   10,
+        min_length  =   0,
+        widget      =   forms.TextInput(
+            attrs   =   {
+                'autocomplete'  :   "off"
+            }
+        )
+    )
+    company_name    =   forms.CharField(
+        label       =   "Company Name",
+        max_length  =   300,
+        min_length  =   0,
+        widget      =   forms.TextInput(
+            attrs   =   {
+                'autocomplete'  :   "off"
+            }
+        )
+    )
+    location    =   forms.CharField(
+        label       =   "Location",
+        max_length  =   300,
+        min_length  =   0,
+        widget      =   forms.TextInput(
+            attrs   =   {
+                'autocomplete'  :   "off"
+            }
+        )
+    )
+    contact_number    =   forms.CharField(
+        label       =   "Contact Number",
+        max_length  =   10,
+        min_length  =   0,
+        widget      =   forms.TextInput(
+            attrs   =   {
+                'autocomplete'  :   "off"
+            }
+        )
+    )
+    Number_of_branches = forms.IntegerField(
+        min_value = 0,
+        max_value = 100000,
+        label = "Number of branches",
+        widget = forms.NumberInput(
+            attrs={
+                'autocomplete' : "off"
+            }
+        )
+    )
+    Number_of_employees = forms.IntegerField(
+        min_value = 0,
+        max_value = 100000,
+        label = "Number of employees",
+        widget = forms.NumberInput(
+            attrs={
+                'autocomplete' : "off"
+            }
+        )
+    )
+    # sector = forms.ChoiceField(
+    #         label = "Sector", 
+    #         choices = [  ( i, (str(i) ) ) for i in Sector.objects.all()   ]   ,
+    #         required = True,
+    #         widget = forms.Select(choices = [   (i, (str(i) ) ) for i in Sector.objects.all()   ]
+    #         )
+    #     )
     class Meta:
         model = Client_Personal_Info
         fields = [
-                "Name",
-                "Email",
-                "Phone_Number",
-                "company_name",
-                "CR",
-                "location",
-                "contact_number",
+                # "Name",
+                # "Email",
+                # "Phone_Number",
+                # "company_name",
+                # "CR",
+                # "location",
+                # "contact_number",
                 "sector",
-                "Number_of_branches",
-                "Number_of_employees",
+                # "Number_of_branches",
+                # "Number_of_employees",
                 "QR_code",
                 # "Services",
                 "Number_of_subaccounts",
@@ -330,15 +430,45 @@ class Client_Personal_Info_Form(forms.ModelForm):
 
     def __init__(self,  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # print(self.initial=)
-        # print(list(service))
-        # self.initial['Services'] = [ str(i[0]) for i in self.fields["Services"] ]
-        # self.initial['Services'] = str(self.instance.Services)
-        # print(self.initial['Services'] )
-        # print(self.__dict__)
-        # self.initial['Services'] = str(self['Services'])
-        self.initial['Services'] = [ str(i[0]) for i in service ]
+        self.fields['managerRelational'].queryset = User.objects.filter(is_superuser = False, is_active = True)
+        self.fields['sector'].queryset = Sector.objects.all()
+        if self.instance.id is not None:
+            if len(self.initial['Services']) != 0:
+                self.initial['Services'] = [B[0] for B in [(((i.split("[")[-1]).split("]")[0]).split("'")[1]).split("'") for i in self.instance.Services.split(",")]]
+            else:
+                self.initial['Services'] = ''
+        elif self.instance.id is None:
+            self.initial['Services'] = [ str(i[0]) for i in service ]
 
+    # def clean(self):
+    #     data = self.cleaned_data.get("Name", None)
+    #     if data is not None:
+    #         if len(data) == 0:
+    #             raise ValidationError("Name field is empty.")
+    #         else:
+    #             return self.cleaned_data
+    #     else:
+    #         raise ValidationError("Name field is empty.P")
+
+    def clean_CR(self):
+        data = self.cleaned_data.get("CR", "None")
+        # print(self.__dict__)
+        # return data
+        if self.instance.id is None:
+            try:
+                obj = Client_Personal_Info.objects.get(CR = data)
+                raise ValidationError("CR Field already exists.")
+            except:
+                return data
+        else:
+            try:
+                obj = Client_Personal_Info.objects.get(CR = data)
+                if obj.id != self.instance.id:
+                    raise ValidationError("CR Field already exists.")
+                else:
+                    return data
+            except:
+                return data
 
 from accounts.models import *
 class RelationalManagerForm(forms.ModelForm):

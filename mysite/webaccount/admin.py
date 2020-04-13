@@ -108,7 +108,7 @@ class ClientRequiredDocumentInline(admin.TabularInline):
         }),
     )
 
-    can_delete = False
+    can_delete = True
 
     def get_extra(self, request, obj=None, **kwargs):
         extra = self.max_num+1
@@ -981,5 +981,5 @@ admin_site.register(Required_Documents,Required_DocumentsAdmin)
 admin_site.register(clientInvoice, clientInvoiceAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(clientReport, clientReportAdmin)
-admin_site.register(relationManager, relationManagerAdmin)
-admin_site.register(ClientRequiredDocuments)
+# admin_site.register(relationManager, relationManagerAdmin)
+# admin_site.register(ClientRequiredDocuments)

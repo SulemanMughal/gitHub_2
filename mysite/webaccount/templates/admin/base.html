@@ -180,12 +180,6 @@
               </a>
             </li>
             
-            
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/webaccount/relationmanager/">
-                <i class="fas fa-file"></i> Relational Managers
-              </a>
-            </li>
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/sector/">
                 <i class="fas fa-building"></i> Sectors
@@ -194,11 +188,6 @@
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/required_documents/">
                 <i class="fas fa-file"></i> Required Documents
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin/webaccount/clientrequireddocuments/">
-                <i class="fas fa-file"></i> Client Uploaded Documents
               </a>
             </li>
             
@@ -392,6 +381,13 @@
                 $(".errorlist").children("li:first-child").css("display", "none");
                 {% endif %}
               </script>
+
+              
+<script>
+  $(document).ready(function(){
+    $(".clearable-file-input").remove();
+  });
+</script>
 
 </body>
 
