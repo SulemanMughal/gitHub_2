@@ -24,6 +24,15 @@ IMAGE_FILE_EXTENSION = [
     "png"
 ]
 
+
+# Consultations Choices
+CONSULTATION_CHOICES = (
+    ('New', 'New'),
+    ('Confirmed', 'Confirmed'),
+    ('Completed', 'Completed'),
+    ('Rejected', 'Rejected')
+)
+
 def integerValidatorAccounts(value):
     if value < 0:
         raise ValidationError(
@@ -352,7 +361,7 @@ class Client_Personal_Info(models.Model):
         )
     status = models.CharField(max_length=10, default = "New", choices = STATE_CHOICES, verbose_name="Status")
     last_update = models.DateTimeField(auto_now_add=True, verbose_name="Last Update")
-    managerRelational = models.ForeignKey(relationManager, on_delete=models.CASCADE, verbose_name="RM", blank = True, null=True)
+    managerRelational = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, verbose_name="RM", blank = True, null=True)
 
     class Meta:
         verbose_name = "Client Personal Information"
@@ -394,7 +403,7 @@ class Client_Personal_Info(models.Model):
         except:
             raise ValidationError(_('CR field already.'))
         # print("*************************************************")
-        super().save(*args, **kwargs)  
+        # super().save(*args, **kwargs)  
         
     
 class clientReport(models.Model):
@@ -466,3 +475,54 @@ class ClientRequiredDocuments(models.Model):
             else:
                 if self.document.file_type != self.uploadFile.name.split(".")[-1]:
                     raise ValidationError(_('Uploded document type and the selected document type must be same.'))
+
+
+class ConsultantModel(models.Model):
+    Name = models.CharField(max_length = 100,
+                            verbose_name = "Name",
+                            unique = True,
+                            default = None,
+                            blank = False,
+                            error_messages = {
+                                'blank' : "Name is required",
+                                'unique' : "Name Already Exists."
+                            }
+                            )
+    
+    class Meta:
+        verbose_name = "Consultation"
+        verbose_name_plural = "Consultations"
+        ordering = [
+            '-id'
+        ]
+    
+    def __str__(self):
+        return self.Name
+
+
+# Consultation Model Created By Client
+class ConsulatationRequest(models.Model):
+    client = models.ForeignKey(Client_Personal_Info, on_delete=models.CASCADE, null=False)
+    consultant = models.ForeignKey(ConsultantModel, on_delete=models.CASCADE, null=True, blank = True)
+    explanation =models.TextField(verbose_name="Explanation",
+                                  max_length=200,
+                                  blank=False,
+                                  default = None,
+                                  error_messages={
+                                      'blank' : "Explanation is Rquired."
+                                  })
+    
+    timestamp = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length = 100, verbose_name="Status", choices =CONSULTATION_CHOICES, default="New", blank=False)
+    price = models.DecimalField(verbose_name="Price", default = None, blank = True, max_digits = 10, decimal_places=2, null=True)
+
+
+    class Meta:
+        verbose_name = "Consultation Request"
+        verbose_name_plural = "Consultation Requests"
+        ordering = [
+            '-id'
+        ]
+
+    def __str__(self):
+        return "{name}'s Consultatoin".format(name=self.client.Name)

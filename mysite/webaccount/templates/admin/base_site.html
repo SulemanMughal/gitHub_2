@@ -61,6 +61,19 @@
                         {% elif title == "Change Client Personal Information" %}
                         Client Personal Information Details
 
+                        {% elif title == "Select Consultation to change" %}
+                        Client Consultations
+                    {% elif title == "Add Consultation" %}
+                        Client Consultation Details
+                    {% elif title == " Change Consultation" %}
+                        Client Consultation Details
+
+                        
+                        {% elif title == "Select Consultation Requests to change" or title == "Select Consultation Request to change" %}
+                        Client Consultation Requests
+
+                      {% elif title == "Add Consultation Request" or title == "Change Consultation Request" %}
+                        Consultation Request Details
 
     {% else %}
         {{ title }}

@@ -972,14 +972,49 @@ class clientReportAdmin(admin.ModelAdmin):
             'admin/change_list.html'
         ], context)
 
+# # Consultation Admin
+# class ConsulatationRequestAdmin(admin.ModelAdmin):
+#     list_display=[
+#         'client',
+#         'explanation',
+#     ]
+    
+#     search_fields = [
+#         'client__Name',
+#         'explanation'
+#     ]
+
+
+# Consultation Requests
+class ConsulatationRequestAdmin(admin.ModelAdmin):
+    search_fields = [
+        'id',
+        'client__Name',
+        'client__id'
+    ]
+
+    list_display = [
+        '__str__',
+        'client',
+        'status'
+    ]
+    # search_fields
+    # list_display_links
+    # ordering
+    # sortable_by=[
+    #     ''
+    # ]
+    list_filter = [
+        'status'
+    ]
+    list_per_page = 10
+
 admin_site = MyAdminSite()
 admin_site.register(Sector, SectorAdmin)
 admin_site.register(Client_Personal_Info, Client_Personal_InfoAdmin)
 admin_site.register(Required_Documents,Required_DocumentsAdmin)
-# admin_site.register(Client_Company_Info)
-# admin_site.register(Subscription_Information, SubscriptionInformationAdmin)
 admin_site.register(clientInvoice, clientInvoiceAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(clientReport, clientReportAdmin)
-# admin_site.register(relationManager, relationManagerAdmin)
-# admin_site.register(ClientRequiredDocuments)
+admin_site.register(ConsulatationRequest, ConsulatationRequestAdmin)
+admin_site.register(ConsultantModel)

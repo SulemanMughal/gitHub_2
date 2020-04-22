@@ -163,12 +163,21 @@
                 Webaccount
               </a>
             </li>
+            
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/client_personal_info/">
                 <i class="fas fa-address-book"></i> Clients
               </a>
             </li>
-            
+
+
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/consulatationrequest/">
+                <i class="fas fa-address-book"></i> Consultation Requests
+              </a>
+            </li>
+
+
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/clientreport/">
                 <i class="fas fa-file"></i> Client Reports
@@ -180,11 +189,22 @@
               </a>
             </li>
             
+      
+
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/sector/">
                 <i class="fas fa-building"></i> Sectors
               </a>
             </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/consultantmodel/">
+                <i class="fas fa-building"></i> Consultant
+              </a>
+            </li>
+
+
+            
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/required_documents/">
                 <i class="fas fa-file"></i> Required Documents
@@ -286,7 +306,26 @@
 
                       {% elif title == "Change Client Personal Information" %}
                           Client Personal Information Details
-          {% else %}
+
+                      {% elif title == "Select Consultation to change" %}
+                          Client Consultations
+                      {% elif title == "Add Consultation" %}
+                          Client Consultation Details
+                      {% elif title == " Change Consultation" %}
+                          Client Consultation Details
+
+                          {% elif title == "Select Consultation Requests to change" or title == "Select Consultation Request to change" %}
+                              Client Consultation Requests
+
+                            {% elif title == "Add Consultation Request" or title == "Change Consultation Request" %}
+                              Consultation Request Details
+
+                              {% elif title == "Client Consultations"  %}
+                                Consulations
+                              {% elif title == "Change Consultation" %}
+                                Consultation Details
+
+                      {% else %}
               {{ title }}
           {% endif %}
             </h3>
@@ -363,6 +402,8 @@
       $("#id_is_staff").attr("checked", "true");
       $("#id_is_superuser").attr("checked", "true");
       $('[for="id_manager"]').after("<br>");
+      $('[for="id_consultant"]').after("<br>");
+      
       $('[for="id_managerRelational"]').after("<br>");
       $('[for="id_quoteStatus"]').addClass("ml-2");
       $('[for="id_activeStatus"]').addClass("ml-2");
