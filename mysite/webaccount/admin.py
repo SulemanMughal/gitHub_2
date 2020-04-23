@@ -996,6 +996,8 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
     list_display = [
         '__str__',
         'client',
+        'sendQuote',
+
         'status'
     ]
     # search_fields
@@ -1008,6 +1010,19 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
         'status'
     ]
     list_per_page = 10
+    
+    def sendQuote(self, obj):
+        url= reverse("sendConsultantRequestQuote_URL",args = [obj.client.pk, obj.pk])
+        display_title = "View " + str(obj.client.Name) + " 's Consultant Quote"
+        link = '<a href="%s">%s</a>'%(url, display_title)
+        return mark_safe(link)
+
+    sendQuote.short_description = "Consultant Quotes"
+
+class ConsultantModelAdmin(admin.ModelAdmin):
+    search_fields = [
+        'Name'
+    ]
 
 admin_site = MyAdminSite()
 admin_site.register(Sector, SectorAdmin)
@@ -1017,4 +1032,4 @@ admin_site.register(clientInvoice, clientInvoiceAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(clientReport, clientReportAdmin)
 admin_site.register(ConsulatationRequest, ConsulatationRequestAdmin)
-admin_site.register(ConsultantModel)
+admin_site.register(ConsultantModel, ConsultantModelAdmin)

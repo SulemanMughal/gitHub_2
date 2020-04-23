@@ -517,6 +517,53 @@ class RelationalManagerForm(forms.ModelForm):
     #     # print(self.__dict__)
 
 
+# Consultant Request Form
+class ConsultantRequestUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ConsulatationRequest
+        fields = [
+            'consultant',
+            # 'status',
+            'price',
+            # 'client_paid',
+            'client_paid_all_amount'
+        ]
+        
+        
+        # Initialize Method
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    
+    def clean_consultant(self):
+        data = self.cleaned_data.get("consultant")
+        if data is None:
+            raise forms.ValidationError("Consultant should be specified.")
+        return data
+    
+    def clean_price(self):
+        data = self.cleaned_data.get("price", None)
+        if data is None or float(data) == 0:
+            raise forms.ValidationError("Consultation Price is required.")
+        elif float(data) < 0:
+            raise forms.ValidationError("Consultation Price is should be greater than 0.")
+        return data
+        
+    # def clean(self):
+    #     status_data =self.cleaned_Data("status")
+    #     print(self.__dict__)
+    #     return self.cleaned_data
+    
+    # def clean(self):
+    #     print("**********************************")
+    #     print(self.__dict__['instance'].__dict__)
+    #     print("**********************************")
+    #     return self.cleaned_data
+        
+        
+
+
+
 # CLient Documents Inline Forms
 
 class BaseDocumentFormSet(forms.ModelForm):
@@ -524,11 +571,25 @@ class BaseDocumentFormSet(forms.ModelForm):
     # Initialize Method
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.queryset = Author.objects.filter(name__startswith='O')
-        # print("Helo")
+        
 
-    # # Clean Method
-    # def clean(self):
-    #     print("********************************************")
-    #     print(self.__dict__)
-    #     print("******************************************************************")
+class FeedbackForm(forms.ModelForm):
+    class Meta:
+        model = ConsulatationRequest
+        fields = [
+            'feedbackFile'
+        ]
+    
+    def clean_feedbackFile(self):
+        file = self.cleaned_data.get("feedbackFile")
+        if self.__dict__['instance'].__dict__['status'] != "Completed":
+            raise forms.ValidationError("Consultation should be completed before giving feedback document.")
+        
+        if file is None:
+            raise forms.ValidationError("Feedback File should be uploaded first")
+        
+        elif file is not None:
+            # print(file.__dict__)
+            if file.__dict__['content_type'] != "application/pdf" :
+                raise forms.ValidationError("Uploaded File should be pdf")
+        return file

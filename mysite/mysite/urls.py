@@ -42,9 +42,17 @@ urlpatterns = [
     path('send_quote/<int:num>',send_quote_view, name="send_quote_specific"),
     path('send_quote_send_mail/<int:client_id>', send_quote_mail_view, name="send_mail_quote_view"),
     path('update_status_approved/<int:client_id>/<int:document_id>/', change_document_submitted_status_aaproved, name="document_approved"),
-    path('update_status_rejected/<int:client_id>/<int:document_id>/', change_document_submitted_status_rejected, name="document_rejected")
-
+    path('update_status_rejected/<int:client_id>/<int:document_id>/', change_document_submitted_status_rejected, name="document_rejected"),
+    path("send-consultant-requets-quote/<int:client_id>/<int:consultant_request_id>/", sendConsultantRequestQuote, name="sendConsultantRequestQuote_URL"),
+    path('send_quote_send_mail_consultant/<int:client_id>/<int:consultant_request_id>/', save_send_quote_consultant_mail_view, name="send_mail_consultant_quote_URL"),
+    path('reject_quote_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', reject_quote_consultant_mail_view, name="reject_mail_consultant_quote_URL"),
+    path('confirm_quote_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', confirm_quote_consultant_mail_view, name="confirm_mail_consultant_quote_URL"),
+    path('close_quo-te_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', close_quote_consultant_mail_view, name="close_mail_consultant_quote_URL"),
+    path('complete_quo-te_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', complete_quote_consultant_mail_view, name="complete_mail_consultant_quote_URL"),
+    path('sendFile/<int:client_id>/<int:consultant_request_id>/', sendFile, name="send-file"),
 ]
+
+
 
 if settings.DEBUG:
     urlpatterns+= static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)

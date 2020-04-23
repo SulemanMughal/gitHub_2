@@ -29,7 +29,9 @@ IMAGE_FILE_EXTENSION = [
 CONSULTATION_CHOICES = (
     ('New', 'New'),
     ('Confirmed', 'Confirmed'),
+    ('Pending', 'Pending'),
     ('Completed', 'Completed'),
+    ('Close', 'Close'),
     ('Rejected', 'Rejected')
 )
 
@@ -512,11 +514,23 @@ class ConsulatationRequest(models.Model):
                                       'blank' : "Explanation is Rquired."
                                   })
     
-    timestamp = models.DateTimeField(auto_now_add=True)
+    created_timestamp = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length = 100, verbose_name="Status", choices =CONSULTATION_CHOICES, default="New", blank=False)
     price = models.DecimalField(verbose_name="Price", default = None, blank = True, max_digits = 10, decimal_places=2, null=True)
-
-
+    update_timestamp = models.DateTimeField(auto_now_add=True)
+    client_paid = models.DecimalField(max_length = 100,
+                   verbose_name="Client Paid Amound",
+                   default = None,
+                   max_digits = 10, 
+                   decimal_places=2, 
+                   null=True,
+                   blank=True
+                   )
+    client_paid_all_amount = models.BooleanField(verbose_name="Paid All Amount",
+                                                 default = False,
+                                                 )
+    feedbackFile = models.FileField(upload_to='uploads/feedback/%Y/%m/%d/', verbose_name = "Feedback Document", blank=True)
+    
     class Meta:
         verbose_name = "Consultation Request"
         verbose_name_plural = "Consultation Requests"
