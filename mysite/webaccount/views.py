@@ -255,7 +255,7 @@ def save_send_quote_consultant_mail_view(request, client_id, consultant_request_
             client = Client_Personal_Info.objects.get(id =client_id)
             consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
             if consultant_request.status == "Pending":
-                if consultant_request.client_paid_all_amount == True:
+                if consultant_request.clientPaidAllAmount == True:
                     messages.success(request, "Client already payed for this consultation quote, please confirm it.")
                     return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
                 else:
@@ -281,9 +281,11 @@ def save_send_quote_consultant_mail_view(request, client_id, consultant_request_
         try:
             client = Client_Personal_Info.objects.get(id =client_id)
             consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
+            # print(request.POST)
             form = ConsultantRequestUpdateForm(request.POST, instance=consultant_request)
             try:
                 if form.is_valid():
+                    data_1, data_2 , data_3 = form.cleaned_data['price'], form.cleaned_data['clientPaid'], form.cleaned_data['clientPaidAllAmount']
                     obj = form.save(commit=False)
                     obj.update_timestamp =  timezone.now()
                     obj.save()
@@ -309,7 +311,8 @@ def save_send_quote_consultant_mail_view(request, client_id, consultant_request_
             if obj.status == "New" or obj.status == "Rejected":
                 obj.status = "Pending"
                 obj.save()
-        except:
+        except Exception as e:
+            # print(e)
             messages.error(request, 'Client Does Not Exist.')
             return redirect(reverse("admin:index"))
         if obj.status == "New" or obj.status == "Rejected":
@@ -359,7 +362,7 @@ def confirm_quote_consultant_mail_view(request, client_id ,consultant_request_id
         try:
             client = Client_Personal_Info.objects.get(id =client_id)
             consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
-            if consultant_request.client_paid_all_amount:
+            if consultant_request.clientPaidAllAmount:
                 consultant_request.status = "Confirmed"
                 consultant_request.save()
                 domain = current_site = get_current_site(request)
@@ -467,3 +470,271 @@ def sendFile(request,client_id ,consultant_request_id):
             print(e)
             messages.success(request, "There is an error while uploading documents")
             return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
+        
+        
+@login_required
+@staff_member_required
+def declineVIew(request, client_id, consultant_request_id):
+    A = [
+        'Price is High',
+        "I don't need the consultation",
+        'The time is not suitable for me',
+        'Other',
+    ]
+    if request.method != "POST":
+        messages.success(request, 'Invalid Request.')
+        return redirect(reverse(
+            "sendConsultantRequestQuote_URL", args=[
+            client_id,
+            consultant_request_id
+        ]))
+    else:
+        try:
+            client = Client_Personal_Info.objects.get(id =client_id)
+            consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
+            consultant_request.status = "Declined"
+            if int(request.POST['customRadio']) != 4:
+                consultant_request.decline_explanation = A[int(request.POST['customRadio'])]
+            else:
+                consultant_request.decline_explanation = request.POST['customRadio1']
+            consultant_request.save()
+            print(request.POST)
+            messages.success(request, 'Consultation has been declined')
+            return redirect(reverse(
+                "sendConsultantRequestQuote_URL", args=[
+                client_id,
+                consultant_request_id
+            ]))
+        except Exception as e:
+            messages.success(request, 'Invalid Request')
+            return redirect(reverse(
+                "sendConsultantRequestQuote_URL", args=[
+            client_id,
+            consultant_request_id
+            ]))
+            
+@login_required
+@staff_member_required
+def ratingsView(request, client_id, consultant_request_id):
+    if request.method != "POST":
+        messages.success(request, 'Invalid Request.')
+        return redirect(reverse(
+            "sendConsultantRequestQuote_URL", args=[
+            client_id,
+            consultant_request_id
+        ]))
+    else:
+        try:
+            client = Client_Personal_Info.objects.get(id =client_id)
+            consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
+            consultant_request.rating = int(request.POST['whatever1'])
+            consultant_request.save()
+            messages.success(request, 'Ratings has been submitted.')
+            return redirect(reverse(
+                "sendConsultantRequestQuote_URL", args=[
+                client_id,
+                consultant_request_id
+            ]))
+        except Exception as e:
+            messages.success(request, 'Invalid Request')
+            return redirect(reverse(
+                "sendConsultantRequestQuote_URL", args=[
+            client_id,
+            consultant_request_id
+            ]))
+ 
+#  --------------------------------------------------------------
+#  Pickup Order requests
+
+@login_required
+@staff_member_required
+def viewPickUpRequest(request, client_id, pickup_order_id):
+
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        template_name = "webaccount/pickup_order_requests_list.html"
+        context = {
+            'client' : client,
+            'order_Request' : order_Request,
+            'title_site' : "Pick Up Order Details",
+            'title' : "Client '" + str(client.Name) + "'s Pickup Order Details"
+        }
+        return render(request, template_name, context)
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    
+
+@login_required
+@staff_member_required
+def viewPickUpRequestAccept(request, client_id, pickup_order_id):
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        if order_Request.shippingMethod is None:
+            messages.success(request,"Shipping method field is required")
+            return redirect(reverse("viewPickUpRequest_URL", args= [
+                client_id ,
+                pickup_order_id
+            ]))
+        else:
+            order_Request.status="ACCEPT"
+            order_Request.updated_timestamp = timezone.now()
+            order_Request.save()
+            domain = current_site = get_current_site(request)
+            url =  reverse("viewPickUpRequest_URL", args=[client.id, order_Request.id])
+            build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+            # -------------
+            mail_subject = "Pickup Order Request Email [Accepted]"
+            message_title = "An email has been recieved from the Django Admin Group of Companies\n\n\n"
+            message_subject = "Pickup Order Request"
+            message =  message_title + "Please visit the following link to get updates about your Pickup Order Request\n\n\n"
+            message += build_link
+            messages.success(request, 'An email has been send to the client to inform him about his status regarding Pickup Order Request.')
+            to_email = str(client.Email)
+            email = EmailMessage(mail_subject, message, to=[to_email])
+            email.send()
+            return redirect(reverse("viewPickUpRequest_URL", args= [
+                client_id ,
+                pickup_order_id
+            ]))
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    
+    
+
+@login_required
+@staff_member_required
+def viewPickUpRequestReject(request, client_id, pickup_order_id):
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        order_Request.status="REJECT"
+        order_Request.updated_timestamp = timezone.now()
+        order_Request.save()
+        domain = current_site = get_current_site(request)
+        url =  reverse("viewPickUpRequest_URL", args=[client.id, order_Request.id])
+        build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+        # -------------
+        mail_subject = "Pickup Order Request Email [Rejected]"
+        message_title = "An email has been recieved from the Django Admin Group of Companies\n\n\n"
+        message_subject = "Pickup Order Request"
+        message =  message_title + "Please visit the following link to get updates about your Pickup Order Request\n\n\n"
+        message += build_link
+        messages.success(request, 'An email has been send to the client to inform him about his status regarding Pickup Order Request.')
+        to_email = str(client.Email)
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.send()
+        return redirect(reverse("viewPickUpRequest_URL", args= [
+            client_id ,
+            pickup_order_id
+        ]))
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    
+    
+
+@login_required
+@staff_member_required
+def viewPickUpRequestOnDelivery(request, client_id, pickup_order_id):
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        order_Request.status="ON DELIVERY"
+        order_Request.updated_timestamp = timezone.now()
+        order_Request.save()
+        domain = current_site = get_current_site(request)
+        url =  reverse("viewPickUpRequest_URL", args=[client.id, order_Request.id])
+        build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+        # -------------
+        mail_subject = "Pickup Order Request Email [On Delivery]"
+        message_title = "An email has been recieved from the Django Admin Group of Companies\n\n\n"
+        message_subject = "Pickup Order Request"
+        message =  message_title + "Please visit the following link to get updates about your Pickup Order Request\n\n\n"
+        message += build_link
+        messages.success(request, 'An email has been send to the client to inform him about his status regarding Pickup Order Request.')
+        to_email = str(client.Email)
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.send()
+        return redirect(reverse("viewPickUpRequest_URL", args= [
+            client_id ,
+            pickup_order_id
+        ]))
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    
+    
+
+@login_required
+@staff_member_required
+def viewPickUpRequestRecieved(request, client_id, pickup_order_id):
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        order_Request.status="RECEIVED"
+        order_Request.updated_timestamp = timezone.now()
+        order_Request.save()
+        domain = current_site = get_current_site(request)
+        url =  reverse("viewPickUpRequest_URL", args=[client.id, order_Request.id])
+        build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+        # -------------
+        mail_subject = "Pickup Order Request Email [Received]"
+        message_title = "An email has been recieved from the Django Admin Group of Companies\n\n\n"
+        message_subject = "Pickup Order Request"
+        message =  message_title + "Please visit the following link to get updates about your Pickup Order Request\n\n\n"
+        message += build_link
+        messages.success(request, 'An email has been send to the client to inform him about his status regarding Pickup Order Request.')
+        to_email = str(client.Email)
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.send()
+        return redirect(reverse("viewPickUpRequest_URL", args= [
+            client_id ,
+            pickup_order_id
+        ]))
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    
+    
+    
+
+@login_required
+@staff_member_required
+def viewPickUpRequestOnFailed(request, client_id, pickup_order_id):
+    try:
+        client = Client_Personal_Info.objects.get(id = client_id)
+        order_Request = PickUpRequestOrders.objects.get(id=pickup_order_id)
+        order_Request.status="FAILED"
+        order_Request.updated_timestamp = timezone.now()
+        order_Request.save()
+        domain = current_site = get_current_site(request)
+        url =  reverse("viewPickUpRequest_URL", args=[client.id, order_Request.id])
+        build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+        # -------------
+        mail_subject = "Pickup Order Request Email [Failed to Pickup]"
+        message_title = "An email has been recieved from the Django Admin Group of Companies\n\n\n"
+        message_subject = "Pickup Order Request"
+        message =  message_title + "Please visit the following link to get updates about your Pickup Order Request\n\n\n"
+        message += build_link
+        messages.success(request, 'An email has been send to the client to inform him about his status regarding Pickup Order Request.')
+        to_email = str(client.Email)
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        email.send()
+        return redirect(reverse("viewPickUpRequest_URL", args= [
+            client_id ,
+            pickup_order_id
+        ]))
+    except Exception as e:
+        print(e)
+        messages.success(request,"Invlid Request")
+        return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
+    

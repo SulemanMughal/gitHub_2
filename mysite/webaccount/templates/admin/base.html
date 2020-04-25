@@ -203,6 +203,18 @@
               </a>
             </li>
 
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/shipping/">
+                <i class="fas fa-building"></i> Shipping
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/webaccount/pickuprequestorders/">
+                <i class="fas fa-building"></i> Pickup Order Requests
+              </a>
+            </li>
+
 
             
             <li class="nav-item">
@@ -308,11 +320,11 @@
                           Client Personal Information Details
 
                       {% elif title == "Select Consultation to change" %}
-                          Client Consultations
+                           Consultation Details
                       {% elif title == "Add Consultation" %}
-                          Client Consultation Details
+                           Consultation Details
                       {% elif title == " Change Consultation" %}
-                          Client Consultation Details
+                           Consultation Details
 
                           {% elif title == "Select Consultation Requests to change" or title == "Select Consultation Request to change" %}
                               Client Consultation Requests
@@ -325,6 +337,13 @@
                               {% elif title == "Change Consultation" %}
                                 Consultation Details
 
+                                {% elif title == "Select shipping to change" or title == "Add shipping" or title == "Change shipping" %}
+                                    Shipping Details
+                    {% elif title == "Select pick up request orders to change" %}
+                        PickUp Order Requests
+                        {% elif title == "Add pick up request orders" or title == "Change pick up request orders" %}
+                            PickUp Order Request Details
+                                  
                       {% else %}
               {{ title }}
           {% endif %}
@@ -404,9 +423,14 @@
       $('[for="id_manager"]').after("<br>");
       $('[for="id_consultant"]').after("<br>");
       $('[for="id_explanation"]').after("<br>");
+      $('[for="id_shippingMethod"]').after("<br>");
+      
       $('[for="id_managerRelational"]').after("<br>");
       $('[for="id_quoteStatus"]').addClass("ml-2");
       $('[for="id_activeStatus"]').addClass("ml-2");
+      
+      $('.form-control').attr("autocomplete", "off");
+
       // $("#clientrequireddocuments_set-empty").removeClass("form-row row2  empty-form")
       // $("#clientrequireddocuments_set-empty").addClass("form-row row1 dynamic-clientrequireddocuments_set")
       // $("#clientrequireddocuments_set-empty").at

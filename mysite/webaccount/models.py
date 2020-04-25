@@ -32,7 +32,8 @@ CONSULTATION_CHOICES = (
     ('Pending', 'Pending'),
     ('Completed', 'Completed'),
     ('Close', 'Close'),
-    ('Rejected', 'Rejected')
+    ('Rejected', 'Rejected'),
+    ('Declined', 'Declined')
 )
 
 def integerValidatorAccounts(value):
@@ -481,7 +482,7 @@ class ClientRequiredDocuments(models.Model):
 
 class ConsultantModel(models.Model):
     Name = models.CharField(max_length = 100,
-                            verbose_name = "Name",
+                            verbose_name = "Field",
                             unique = True,
                             default = None,
                             blank = False,
@@ -490,6 +491,17 @@ class ConsultantModel(models.Model):
                                 'unique' : "Name Already Exists."
                             }
                             )
+    
+    parentField = models.CharField(max_length = 100,
+                                   verbose_name = "Parent Field",
+                                   unique = True,
+                                   default = None,
+                                   blank = True,
+                                   null = True,
+                                   error_messages = {
+                                'unique' : "Parent Field Already Exists."
+                            }
+                                   )
     
     class Meta:
         verbose_name = "Consultation"
@@ -505,7 +517,12 @@ class ConsultantModel(models.Model):
 # Consultation Model Created By Client
 class ConsulatationRequest(models.Model):
     client = models.ForeignKey(Client_Personal_Info, on_delete=models.CASCADE, null=False)
-    consultant = models.ForeignKey(ConsultantModel, on_delete=models.CASCADE, null=True, blank = True)
+    consultant = models.ForeignKey(ConsultantModel, 
+                                on_delete=models.CASCADE, 
+                                null=False, 
+                                blank = False,
+                                verbose_name = "Consultation Field")
+    
     explanation =models.TextField(verbose_name="Explanation",
                                   max_length=200,
                                   blank=False,
@@ -514,11 +531,26 @@ class ConsulatationRequest(models.Model):
                                       'blank' : "Explanation is Rquired."
                                   })
     
-    created_timestamp = models.DateTimeField(auto_now_add=True)
+    created_timestamp = models.DateTimeField(auto_now_add=False, 
+                                            auto_now = False, 
+                                            verbose_name = "Consultation Date & Time",
+                                            default = timezone.now
+                        )
     status = models.CharField(max_length = 100, verbose_name="Status", choices =CONSULTATION_CHOICES, default="New", blank=False)
+    Name = models.CharField(max_length = 100,
+                            verbose_name = "Consultation Name",
+                            unique = False,
+                            default = None,
+                            blank = True,
+                            null = True,
+                            error_messages = {
+                                'blank' : "Name is required",
+                                'unique' : "Name Already Exists."
+                            }
+                            )
     price = models.DecimalField(verbose_name="Price", default = None, blank = True, max_digits = 10, decimal_places=2, null=True)
     update_timestamp = models.DateTimeField(auto_now_add=True)
-    client_paid = models.DecimalField(max_length = 100,
+    clientPaid = models.DecimalField(max_length = 100,
                    verbose_name="Client Paid Amound",
                    default = None,
                    max_digits = 10, 
@@ -526,9 +558,17 @@ class ConsulatationRequest(models.Model):
                    null=True,
                    blank=True
                    )
-    client_paid_all_amount = models.BooleanField(verbose_name="Paid All Amount",
+    clientPaidAllAmount = models.BooleanField(verbose_name="Client Paid All Amount",
                                                  default = False,
                                                  )
+    decline_explanation = models.TextField(max_length = 200,
+                                           verbose_name="Decline Reaons",
+                                           blank = True,
+                                           null = True,
+                                           default=''
+                                           )
+    
+    rating = models.IntegerField(verbose_name="Rating", default=0, blank=True, null = True)
     feedbackFile = models.FileField(upload_to='uploads/feedback/%Y/%m/%d/', verbose_name = "Feedback Document", blank=True)
     
     class Meta:
@@ -540,3 +580,64 @@ class ConsulatationRequest(models.Model):
 
     def __str__(self):
         return "{name}'s Consultatoin".format(name=self.client.Name)
+    
+    
+    
+    
+# --------------------------------------------------------
+# SHIPPING METHOD
+
+class Shipping(models.Model):
+    Name = models.CharField(max_length = 50,
+                            verbose_name="Shipping Method",
+                            blank  =False,
+                            unique = True,
+                            null = False,
+                            default = '')
+    
+    def __str__(self):
+        return str(self.Name)    
+
+# ---------------------------------------------------------------------------
+# PICKUPREQUESTORDERS
+
+PickUpRequestOrdersStatues = (
+    ('ACCEPT', 'ACCEPT'),
+    ('REJECT', 'REJECT'),
+    ('ON DELIVERY', 'ON DELIVERY'),
+    ('RECEIVED', 'RECEIVED'),
+    ('FAILED', 'FAILED'),
+    ('NONE','NONE')
+)
+
+# PICK UP ORDERS MODELS
+class PickUpRequestOrders(models.Model):
+    client = models.ForeignKey(Client_Personal_Info, 
+                               null =  False, 
+                               blank = False,
+                               on_delete=models.CASCADE
+                    )
+
+    status = models.CharField(max_length = 15, 
+                              choices = PickUpRequestOrdersStatues,
+                              verbose_name = "Request Status",
+                              blank = False,
+                              null = False,
+                              default = 'NONE'
+                              )
+
+    shippingMethod = models.ForeignKey(Shipping, on_delete=models.CASCADE, 
+                                       blank = False,
+                                       null = False,
+                                       verbose_name = "Shipping Method",          
+                                       error_messages = {
+                                'blank' : "Shipping method is required",
+                                'null' : "Shipping method is required"
+                            })
+    
+    created_timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Created Timestamp")
+    updated_timestamp = models.DateTimeField(default = timezone.now, verbose_name="Last Updated Timestamp")
+    
+    def __str__(self):
+        return str(self.client.Name) + "'s" + " Pickup Order Request"
+# -----------------------------------------------------------------------------------

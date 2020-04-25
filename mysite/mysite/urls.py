@@ -50,6 +50,29 @@ urlpatterns = [
     path('close_quo-te_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', close_quote_consultant_mail_view, name="close_mail_consultant_quote_URL"),
     path('complete_quo-te_consultant_send_mail/<int:client_id>/<int:consultant_request_id>/', complete_quote_consultant_mail_view, name="complete_mail_consultant_quote_URL"),
     path('sendFile/<int:client_id>/<int:consultant_request_id>/', sendFile, name="send-file"),
+    path('declined/<int:client_id>/<int:consultant_request_id>/', declineVIew, name="declineVIew_URL"),
+    path('ratings/<int:client_id>/<int:consultant_request_id>/', ratingsView, name="ratingsView_URL"),
+    
+    # --------------------------------------------------------------------------------------
+    # Pick Up Order Request URLS
+    path('pickup-client-order-request-list/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequest, name="viewPickUpRequest_URL"),
+    
+    # Accetp Pick Up Order
+    
+    path('pickup-client-order-request-accept/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequestAccept, name="viewPickUpRequestAccept_URL"),
+    
+    # Reject Pick up Order
+    path('pickup-client-order-request-reject/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequestReject, name="viewPickUpRequestReject_URL"),
+    
+    # On Delivery
+    path('pickup-client-order-request-delivery/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequestOnDelivery, name="viewPickUpRequestOnDelivery_URL"),
+    
+    
+    path('pickup-client-order-request-received/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequestRecieved, name="viewPickUpRequestReceived_URL"),
+    
+    
+    path('pickup-client-order-request-failed/<int:client_id>/<int:pickup_order_id>/', viewPickUpRequestOnFailed, name="viewPickUpRequestFailed_URL"),
+    # --------------------------------------------------------------------------------------
 ]
 
 

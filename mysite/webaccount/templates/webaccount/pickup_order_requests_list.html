@@ -1,0 +1,83 @@
+{% extends 'admin/base.html' %}
+{% load i18n static %}
+
+{% block title %} Pickup Order Request Details {% endblock %}
+
+{% block content %}
+
+<div class="card card wr-20 mx-auto mb-5 border-0"  style="left:109px;">
+
+    <div class="card-body border-0 shadow">
+        <table class="table">
+            
+            <tbody>
+                <tr>
+                    <td>
+                        Client
+                    </td>
+                    <td>
+                        {{ client.Name }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Shipping Method
+                    </td>
+                    <td>
+                        {{ order_Request.shippingMethod }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Creation Timestamp
+                    </td>
+                    <td>
+                        {{ order_Request.created_timestamp }}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td>
+                        Updated Timestamp
+                    </td>
+                    <td>
+                        {{ order_Request.updated_timestamp }}
+                    </td>
+                </tr>
+
+
+
+                <tr>
+                    <td>
+                        Status
+                    </td>
+                    <td>
+                        {{ order_Request.status }}
+                    </td>
+                </tr>
+                {% if request.user.is_authenticated %}
+                <tr>
+                
+                    <td colspan="2">
+                        
+                            <a href="{% url 'viewPickUpRequestAccept_URL' client.id order_Request.id %}"  class="btn btn-primary">Accept</a>
+                            <a href="{% url 'viewPickUpRequestReject_URL' client.id order_Request.id %}" class="btn btn-primary">Reject</a>
+                            <a href="{% url 'viewPickUpRequestOnDelivery_URL' client.id order_Request.id %}" class="btn btn-primary">On Delivery</a>
+                            <a href="{% url 'viewPickUpRequestReceived_URL' client.id order_Request.id  %}" class="btn btn-primary">Received</a>
+                            <a href="{% url 'viewPickUpRequestFailed_URL' client.id order_Request.id  %}" class="btn btn-primary">Failed to Pickup</a>
+    
+                            
+                          
+                </td>
+                </tr>
+                {% endif %}
+
+            </tbody>
+          </table>
+    </div>
+  </div>
+
+{% endblock %}

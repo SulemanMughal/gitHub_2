@@ -39,7 +39,8 @@ from .forms import (
     Required_DocumentsForm,
     Client_Personal_Info_Form, 
     RelationalManagerForm,
-    BaseDocumentFormSet
+    BaseDocumentFormSet,
+    ConsultantRequestAddForm
 )
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
@@ -987,6 +988,12 @@ class clientReportAdmin(admin.ModelAdmin):
 
 # Consultation Requests
 class ConsulatationRequestAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Client Consultation Request Information", {
+            'fields': ('client' , 'consultant','explanation' , 'created_timestamp', 'status', 'rating')
+            }
+        ),
+    )
     search_fields = [
         'id',
         'client__Name',
@@ -998,7 +1005,8 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
         'client',
         'sendQuote',
 
-        'status'
+        'status',
+        'rating'
     ]
     # search_fields
     # list_display_links
@@ -1016,7 +1024,6 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
         display_title = "View " + str(obj.client.Name) + " 's Consultant Quote"
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
-
     sendQuote.short_description = "Consultant Quotes"
 
 class ConsultantModelAdmin(admin.ModelAdmin):
@@ -1033,3 +1040,44 @@ admin_site.register(User, UserAdmin)
 admin_site.register(clientReport, clientReportAdmin)
 admin_site.register(ConsulatationRequest, ConsulatationRequestAdmin)
 admin_site.register(ConsultantModel, ConsultantModelAdmin)
+
+
+# pickup order
+admin_site.register(Shipping)
+
+class PickUpOrderRequestsAdmin(admin.ModelAdmin):
+    search_fields = [
+        'client__Name',
+        'client__id',
+        'id'
+    ]
+    list_display = [
+        'client',
+        'viewActionPage',
+        'shippingMethod',
+        'status',
+    ]
+    
+    ordering = [
+        'client',
+        'status',
+        'shippingMethod'
+    ]
+    sortable_by = [
+        'status',
+        'shippingMethod'
+    ]
+    list_filter = [
+        'status'
+    ]
+    list_per_page = 10
+
+
+    def viewActionPage(self, obj):
+        url= reverse("viewPickUpRequest_URL",args = [obj.client.pk, obj.pk])
+        display_title = "View " + str(obj.client.Name) + " 's Pickup Order Action Page"
+        link = '<a href="%s">%s</a>'%(url, display_title)
+        return mark_safe(link)
+    viewActionPage.short_description = "Action Pages"
+
+admin_site.register(PickUpRequestOrders, PickUpOrderRequestsAdmin)

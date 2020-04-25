@@ -1,32 +1,32 @@
 import unicodedata
+
 from django import forms
-from django.contrib.auth import (
-    authenticate, get_user_model, password_validation,
-)
-from django.contrib.auth.hashers import (
-    UNUSABLE_PASSWORD_PREFIX, identify_hasher,
-)
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import (authenticate, get_user_model,
+                                 password_validation)
+from django.contrib.auth.hashers import (UNUSABLE_PASSWORD_PREFIX,
+                                         identify_hasher)
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage, EmailMultiAlternatives
+from django.forms import BaseModelFormSet
+from django.shortcuts import redirect, render
 from django.template import loader
+from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.utils.text import capfirst
-from django.utils.translation import gettext, gettext_lazy as _
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
-from django.shortcuts import render,redirect
-from django.contrib import messages
-from django.forms import BaseModelFormSet
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
+
+from accounts.models import *
+
+from .models import *
 
 # UserModel = get_user_model()
 
-from .models import *
-from accounts.models import *
-from django.conf import settings
 
 
 ADMIN_RIGHTS=[
@@ -470,7 +470,6 @@ class Client_Personal_Info_Form(forms.ModelForm):
             except:
                 return data
 
-from accounts.models import *
 class RelationalManagerForm(forms.ModelForm):
     # manager = forms.
     # choices = [
@@ -517,51 +516,6 @@ class RelationalManagerForm(forms.ModelForm):
     #     # print(self.__dict__)
 
 
-# Consultant Request Form
-class ConsultantRequestUpdateForm(forms.ModelForm):
-    class Meta:
-        model = ConsulatationRequest
-        fields = [
-            'consultant',
-            # 'status',
-            'price',
-            # 'client_paid',
-            'client_paid_all_amount'
-        ]
-        
-        
-        # Initialize Method
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-    
-    def clean_consultant(self):
-        data = self.cleaned_data.get("consultant")
-        if data is None:
-            raise forms.ValidationError("Consultant should be specified.")
-        return data
-    
-    def clean_price(self):
-        data = self.cleaned_data.get("price", None)
-        if data is None or float(data) == 0:
-            raise forms.ValidationError("Consultation Price is required.")
-        elif float(data) < 0:
-            raise forms.ValidationError("Consultation Price is should be greater than 0.")
-        return data
-        
-    # def clean(self):
-    #     status_data =self.cleaned_Data("status")
-    #     print(self.__dict__)
-    #     return self.cleaned_data
-    
-    # def clean(self):
-    #     print("**********************************")
-    #     print(self.__dict__['instance'].__dict__)
-    #     print("**********************************")
-    #     return self.cleaned_data
-        
-        
-
 
 
 # CLient Documents Inline Forms
@@ -573,6 +527,100 @@ class BaseDocumentFormSet(forms.ModelForm):
         super().__init__(*args, **kwargs)
         
 
+# -------------------------------------------------------------------------------------------
+# CONSULTATION MODELS FORM HANDLERS
+
+
+
+# Consultation Add New Entry Form
+class ConsultantRequestAddForm(forms.ModelForm):
+    class Meta:
+        model = ConsulatationRequest
+        fields = [
+            'client',
+            'explanation',
+            'created_timestamp',
+            'consultant',
+            'clientPaid',
+            'clientPaidAllAmount',
+            'status'
+        ]
+        
+        
+        def clean_status(self):
+            print(self.cleaned_data)
+            data_status = self.cleaned_data.get("status")
+            if self.cleaned_data.get("clientPaidAllAmount") is True:
+                if data_status != "Confirmed" or data_status != "Completed" or data_status != "Close":
+                    raise forms.ValidationError("Client already payed for this consultation quote, please confirm it.")
+            else:
+                if data_status == "Confirmed" or data_status == "Completed" or data_status == "Close":
+                    raise forms.ValidationError("You can't confirm the consultation request because the client didn't pay yet.")
+            
+
+# Consultant Request Form (STATUS == New)
+class ConsultantRequestUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ConsulatationRequest
+        fields = [
+            'Name',
+            'price',
+            'clientPaidAllAmount',
+            'clientPaid',
+            'status'
+        ]
+        
+        
+        # Initialize Method
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+    
+    def clean_Name(self):
+        data = self.cleaned_data.get("Name")
+        if data is None or len(data) == 0:
+            raise forms.ValidationError("Consultation Name should be specified.")
+        return data
+    
+    def clean_price(self):
+        # print(self.cleaned_data)
+        data = self.cleaned_data.get("price", None)
+        try:
+            if data is None or float(data) == 0:
+                # print(self.cleaned_data)
+                raise forms.ValidationError("Consultation Price is required.")
+            elif float(data) < 0:
+                raise forms.ValidationError("Consultation Price is should be greater than 0.")
+        except Exception as e:
+            print(e)
+        # print(float(data))
+        return float(data)
+        
+    def clean_clientPaidAllAmount(self):
+        return self.cleaned_data.get("clientPaidAllAmount")
+
+    
+    
+    def clean_status(self):
+        cleaned_data = super().clean()
+        data_status = cleaned_data.get("status")
+        is_paid = self.cleaned_data.get("clientPaidAllAmount")
+        # print(data_status)
+        if is_paid:
+            if data_status != "Confirmed":
+                raise ValidationError("Client already payed for this consultation quote, please confirm it.")
+            else:
+                return data_status
+        else:
+            return data_status
+    
+    # def clean(self):
+    #     print(self.cleaned_data)
+    #     return self.cleaned_data
+
+
+
+# CONSULTATION FEDBACK FORM
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = ConsulatationRequest
@@ -593,3 +641,5 @@ class FeedbackForm(forms.ModelForm):
             if file.__dict__['content_type'] != "application/pdf" :
                 raise forms.ValidationError("Uploaded File should be pdf")
         return file
+    
+# -------------------------------------------------------------------------------------------

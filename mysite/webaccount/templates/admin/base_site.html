@@ -63,10 +63,10 @@
 
                         {% elif title == "Select Consultation to change" %}
                         Client Consultations
-                    {% elif title == "Add Consultation" %}
-                        Client Consultation Details
+                    {% elif title == "Add Consultation" or title == "Change Consultation" %}
+                         Consultation Details
                     {% elif title == " Change Consultation" %}
-                        Client Consultation Details
+                         Consultation Details
 
                         
                         {% elif title == "Select Consultation Requests to change" or title == "Select Consultation Request to change" %}
@@ -74,6 +74,14 @@
 
                       {% elif title == "Add Consultation Request" or title == "Change Consultation Request" %}
                         Consultation Request Details
+
+                        
+                        {% elif title == "Select shipping to change" or title == "Add shipping" or title == "Change shipping" %}
+                        Shipping Details
+        {% elif title == "Select pick up request orders to change" %}
+            PickUp Order Requests
+            {% elif title == "Add pick up request orders" or title == "Change pick up request orders" %}
+                PickUp Order Request Details
 
     {% else %}
         {{ title }}
