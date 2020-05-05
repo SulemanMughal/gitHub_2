@@ -71,6 +71,19 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
 
+USERS_ROLE=(
+    (True, "Admin"),
+    (False, "Relational Manager"),
+    (None, "Consultants")
+)
+
+
+ADMIN_RIGHTS=[
+    ("True", 'Admin'),
+    ("False",'Relational Manager'),
+    ("Consultant", "Consultant")
+]
+
 class User(AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
 
@@ -101,13 +114,17 @@ class User(AbstractBaseUser):
             'Unselect this instead of deleting accounts.'
         ),
     )
-    is_superuser = models.BooleanField(
+    is_superuser = models.CharField(
         _('superuser status'),
+        max_length=11,
+        blank=True,
+        null=True,
         default=False,
         help_text=_(
             'Designates that this user has all permissions without '
             'explicitly assigning them.'
         ),
+        choices=ADMIN_RIGHTS
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 

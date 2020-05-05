@@ -40,7 +40,8 @@ from .forms import (
     Client_Personal_Info_Form, 
     RelationalManagerForm,
     BaseDocumentFormSet,
-    ConsultantRequestAddForm
+    ConsultantRequestAddForm,
+    ConsultantModelForm
 )
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
@@ -163,9 +164,12 @@ class UserAdmin(admin.ModelAdmin):
     ]
 
     def getSuperuser(self, obj):
-        if obj.is_superuser:
+        if obj.is_superuser == "True":
             return "Admin"
-        return "Relational Manager"
+        elif obj.is_superuser == "False":
+            return "Relational Manager"
+        else:
+            return "Consultant"
 
     def getActiveStatus(self, obj):
         if obj.is_active:
@@ -1040,6 +1044,8 @@ class ConsultantModelAdmin(admin.ModelAdmin):
     search_fields = [
         'Name'
     ]
+
+    form = ConsultantModelForm
 
 admin_site = MyAdminSite()
 admin_site.register(Sector, SectorAdmin)

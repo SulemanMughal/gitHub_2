@@ -30,8 +30,9 @@ from .models import *
 
 
 ADMIN_RIGHTS=[
-    (True, 'Admin'),
-    (False,'Relational Manager')
+    ("True", 'Admin'),
+    ("False",'Relational Manager'),
+    ("Consultant", "Consultant")
 ]
 
 ACCOUNT_STATUS = [
@@ -471,16 +472,6 @@ class Client_Personal_Info_Form(forms.ModelForm):
                 return data
 
 class RelationalManagerForm(forms.ModelForm):
-    # manager = forms.
-    # choices = [
-    #     (str(r), str(r) for r in )
-    # ]
-    # obj = User.objects.filter(is_superuser = False)
-    # global RELATIONAL_MANAGER_CHOICES
-    # choices = RELATIONAL_MANAGER_CHOICES
-    # print(choices)
-
-    # manager = forms.ChoiceField(label = "Relational Manager", choices = choices)
     class Meta:
         model = relationManager
         fields = [
@@ -491,31 +482,20 @@ class RelationalManagerForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__( *args, **kwargs)
         self.fields['manager'].queryset = User.objects.filter(is_superuser = False, is_active = True)
-    
-    # def __init__(self,*args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     # print(self.initial=)
-    #     # print(list(service))
-    #     # global RELATIONAL_MANAGER_CHOICES
-    #     # self.initial['manager'] = RELATIONAL_MANAGER_CHOICES
-    # # def clean(self):
-    # #     print(self.cleaned_data)
-    # #     print(self.instance)
-    # #     return self.cleaned_data
+   
 
-    # def clean_manager(self):
-    #     # print(self.cleaned_data)
-    #     user = User.objects.get(username = self.cleaned_data.get("manager"))
-    #     # print(self.__dict__)
-    #     # print(user)
-    #     return user
-
-    # # def save(self)
-
-    # # def save(self):
-    #     # print(self.__dict__)
+class consultantManagerForm(forms.ModelForm):
+    class Meta:
+        model = consultantManager
+        fields = [
+            'manager'
+        ]
 
 
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        self.fields['manager'].queryset = User.objects.filter(is_superuser = "Consultant", is_active = True)
+   
 
 
 # CLient Documents Inline Forms
@@ -541,49 +521,66 @@ class ConsultantRequestAddForm(forms.ModelForm):
             'explanation',
             'created_timestamp',
             'consultant',
-            'clientPaid',
             'clientPaidAllAmount',
         ]
         
-        
+       
+from .models import CONSULTATION_CHOICES
 
 # Consultant Request Form (STATUS == New)
 class ConsultantRequestUpdateForm(forms.ModelForm):
     class Meta:
         model = ConsulatationRequest
         fields = [
-            'Name',
             'price',
             'clientPaidAllAmount',
-            'clientPaid',
+            'status',
+            'consultantManager'
         ]
         
+        widgets= {
+            'clientPaidAllAmount' : forms.Select(choices = (
+                (False, "Pending"), 
+                (True, "Completed")
+                ) 
+            ),
+        }
+        
+        labels = {
+            'consultantManager':"Consultant Manager"
+        }
+
         
         # Initialize Method
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['consultantManager'].queryset = User.objects.filter(is_superuser = "Consultant", is_active = True)
         
     
-    def clean_Name(self):
-        data = self.cleaned_data.get("Name")
-        if data is None or len(data) == 0:
-            raise forms.ValidationError("Consultation Name should be specified.")
-        return data
     
     def clean_price(self):
-        # print(self.cleaned_data)
-        print(self)
         data = self.cleaned_data.get("price", None)
-        if data is None or len(data) == 0:
+        if data is None:
             # print(self.cleaned_data)
             raise forms.ValidationError("Consultation Price is required.")
         elif float(data) < 0:
             raise forms.ValidationError("Consultation Price is should be greater than 0.")
         
         return float(data)
+    
+    def clean_consultantManager(self):
+        c = self.cleaned_data.get("consultantManager")
+        if c is None:
+            raise forms.ValidationError("Assign Consultation")
+        return c
         
 
-    
+    def clean_status(self):
+        paid = self.cleaned_data.get("clientPaidAllAmount")
+        s = self.cleaned_data.get("status")
+        if s == "Completed" and paid == False:
+            raise forms.ValidationError("The quote status cannot be completed until the payment status is completed")
+        return s    
     
 
 # CONSULTATION FEDBACK FORM
@@ -609,3 +606,19 @@ class FeedbackForm(forms.ModelForm):
         return file
     
 # -------------------------------------------------------------------------------------------
+
+
+class ConsultantModelForm(forms.ModelForm):
+    class Meta:
+        model = ConsultantModel
+        fields  = "__all__"
+        
+        widgets={
+            'parentField': forms.Select(choices=([(str(i), str(i)) for i in ConsultantModel.objects.all()] + [(None, None)]))
+        }
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        self.fields['parentField'].queryset =[(str(i), str(i)) for i in ConsultantModel.objects.all()] + [(None, None)]
+ 

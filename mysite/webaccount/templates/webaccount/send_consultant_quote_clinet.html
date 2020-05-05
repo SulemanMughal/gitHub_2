@@ -94,22 +94,17 @@
                   {{ consultant_request.consultant }}
               </td>
             </tr>
+           
+
             <tr>
-                <td>
-                    Explanation 
-                </td>
-                <td>
-                  {{ consultant_request.explanation }} 
+              <td>
+                 Assign Consultant
               </td>
-            </tr>
-            <tr>
-                <td>
-                   Consultation Name 
-                </td>
-                <td>
-                  {{ form.Name }} 
-              </td>
-            </tr>
+              <td>
+                {{ form.consultantManager }} 
+            </td>
+          </tr>
+
             <tr>
                 <td>
                    Consultation Price 
@@ -118,25 +113,15 @@
                   {{ form.price }} 
               </td>
             </tr>
-            <tr>
-                <td>
-                   Client Paid Amount 
-                </td>
-                <td>
-                    
-                  {{ form.clientPaid }} 
-              </td>
-            </tr>
+            
             <tr>
                 <td>
                    Client Paid Amount Status 
                 </td>
                 <td>
-                    {% if form.price.value == form.clientPaid.value %}
+                   
                         {{ form.clientPaidAllAmount }} 
-                    {% else %}
-                        False
-                    {% endif %}
+                   
               </td>
             </tr>
             <tr>
@@ -149,7 +134,7 @@
             </tr>
             <tr>
                 <td>
-                    Created Timestamp 
+                    Created Time 
                 </td>
                 <td>
                   {{ consultant_request.created_timestamp }} 
@@ -170,30 +155,17 @@
             <tr>
                 
                 <td colspan="2">
-                    {% if consultant_request.status == "New" %}
-                        <button type="submit" class="btn btn-primary">Send</button>
+                   
                         
-                    {% elif consultant_request.status == "Pending"   %}
-                    <button type="submit" class="btn btn-primary">Update Information</button>
-                        <a href="{% url  'send_mail_consultant_quote_URL' client.id consultant_request.id  %}" type="submit" class="btn btn-primary">Resend</a>
-                        <a href="{% url 'confirm_mail_consultant_quote_URL' client.id consultant_request.id %}" class="btn btn-primary">Confirm</a>
-                        <a href="{% url 'reject_mail_consultant_quote_URL' client.id consultant_request.id %}" class="btn btn-primary">Reject</a>
-                        <a href="{% url 'close_mail_consultant_quote_URL' client.id consultant_request.id %}" class="btn btn-primary">Close</a>
-                        <a href="{% url 'complete_mail_consultant_quote_URL' client.id consultant_request.id %}" class="btn btn-primary">Completed</a>
-
-                        
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                            Decline
-                          </button>
-                        {% else %}
-                        <button type="submit" class="btn btn-primary">Update Information</button>
+                     
+                        <button type="submit" class="btn btn-primary">Save & Send Information</button>
 
                         
 
                         <small id="passwordHelpBlock" class="form-text text-muted">
-                        Update Information Before Performimg Any Action. Thanks!
+                        
                       </small>
-                      {% endif %}
+                     
             </td>
             </tr>
             {% endif %}
@@ -203,7 +175,7 @@
                         Updated Time
                     </td>
                     <td>
-                      {{ consultant_request.update_timestamp|timesince }} 
+                      {{ consultant_request.update_timestamp }} 
                   </td>
                 </tr>
 

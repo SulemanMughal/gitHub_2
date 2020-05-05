@@ -173,6 +173,12 @@ class relationManager(models.Model):
     def __str__(self):
         return self.manager.username
 
+class consultantManager(models.Model):
+    manager = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return self.manager.username
+
 class Sector(models.Model):
     Name = models.CharField(max_length = 100, default = '', unique = True)
 
@@ -494,18 +500,14 @@ class ConsultantModel(models.Model):
     
     parentField = models.CharField(max_length = 100,
                                    verbose_name = "Parent Field",
-                                   unique = True,
                                    default = None,
                                    blank = True,
-                                   null = True,
-                                   error_messages = {
-                                'unique' : "Parent Field Already Exists."
-                            }
+                                   null = True
                                    )
     
     class Meta:
-        verbose_name = "Consultation"
-        verbose_name_plural = "Consultations"
+        verbose_name = "Consultation Field"
+        verbose_name_plural = "Consultation Fields"
         ordering = [
             '-id'
         ]
@@ -522,7 +524,6 @@ class ConsulatationRequest(models.Model):
                                 null=False, 
                                 blank = False,
                                 verbose_name = "Consultation Field")
-    
     explanation =models.TextField(verbose_name="Explanation",
                                   max_length=200,
                                   blank=True,
@@ -530,7 +531,7 @@ class ConsulatationRequest(models.Model):
                                   default = None
     )
                                   
-    
+    consultantManager = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True, verbose_name="Consultant Manager")
     created_timestamp = models.DateTimeField(auto_now_add=False, 
                                             auto_now = False, 
                                             verbose_name = "Consultation Date & Time",
@@ -541,29 +542,10 @@ class ConsulatationRequest(models.Model):
                             choices =CONSULTATION_CHOICES,
                             default="New",
                             blank=False,
-                            editable = False
+                            editable = True
                         )
-    Name = models.CharField(max_length = 100,
-                            verbose_name = "Consultation Name",
-                            unique = False,
-                            default = None,
-                            blank = True,
-                            null = True,
-                            error_messages = {
-                                'blank' : "Name is required",
-                                'unique' : "Name Already Exists."
-                            }
-                            )
     price = models.DecimalField(verbose_name="Price", default = None, blank = True, max_digits = 10, decimal_places=2, null=True)
     update_timestamp = models.DateTimeField(auto_now_add=True)
-    clientPaid = models.DecimalField(max_length = 100,
-                   verbose_name="Client Paid Amound",
-                   default = None,
-                   max_digits = 10, 
-                   decimal_places=2, 
-                   null=True,
-                   blank=True
-                   )
     clientPaidAllAmount = models.BooleanField(verbose_name="Client Paid All Amount",
                                                  default = False,
                                                  )

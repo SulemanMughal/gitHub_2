@@ -18,13 +18,6 @@ from .forms import EditProfileForm, ConsultantRequestUpdateForm, FeedbackForm
 from .models import *
 
 
-def printObjects(x):
-    print("*****************************************")
-    print("*****************************************")
-    print(x)
-    print("*****************************************")
-    print("*****************************************")
-
 @login_required
 def profile_view(request):
     return render(request, 'webaccount/profile.html', {})
@@ -60,19 +53,11 @@ def index_view(request):
                     messages.error(request, "Incorrect username or password.")
         return render(request, 'webaccount/login.html', {})
 
-# @login_required
-# def logout_view(request):
-#     logout()
-
 @login_required
 def logout_view(request):
     logout(request)
     messages.success(request, "User has been logout successfully.")
     return redirect(reverse("index_url"))
-
-# # Password Set View By The User...
-# def password_set_user(request):
-#     return render(request, 'webaccount/password_set_user.html', {})
 
 
 @login_required()
@@ -92,9 +77,6 @@ def change_password(request):
                 logout(request)
                 return redirect(reverse('index_url'))
     return render(request, 'webaccount/change_password.html', {'form': form, 'section': "editProfile"})
-
-
-
 
 @login_required()
 def edit_profile(request):
@@ -116,10 +98,6 @@ def send_quote_view(request, num):
         client = Client_Personal_Info.objects.get(id = num)
         d = client.clientrequireddocuments_set.all()
         e = Required_Documents.objects.all()
-        # print(d)
-        # print("--------")
-        # print(e)
-        # print(client)
     except Client_Personal_Info.DoesNotExist:
         return redirect(reverse('admin:index'))
     context={
@@ -135,17 +113,6 @@ def send_quote_view(request, num):
 @login_required()
 @staff_member_required
 def send_quote_mail_view(request, client_id):
-    # print(request.method)
-    # # print(request.POST)
-    # A = []
-    # # d = dict(request.POST)
-    # # print(d)
-    # # print(list(d.keys())[2:])
-    # if request.POST:
-    #     if len(list(dict(request.POST).keys())) > 2:
-    #         A = list(dict(request.POST).keys())
-    #     else:
-    #         A = []
     A = list(dict(request.POST).keys())
     if "csrfmiddlewaretoken" in  A:
         A.pop(A.index("csrfmiddlewaretoken"))
@@ -230,95 +197,56 @@ def sendConsultantRequestQuote(request, client_id, consultant_request_id):
                     template_name,
                     context
                 )
-        
     except Exception as e:
-        print(e)
         messages.success(request,"Invlid Request")
         return redirect(reverse("admin:webaccount_consulatationrequest_changelist"))
-    
-    
-    
-# Check the Current status of the consultation
-# def consultationStatus(x):
-#     try:
-        
-#     except:
-#         return False
-    
     
 # Save and Send
 @login_required
 @staff_member_required
 def save_send_quote_consultant_mail_view(request, client_id, consultant_request_id):
-    if request.method != "POST":
+    try:
+        client = Client_Personal_Info.objects.get(id =client_id)
+        consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
+        if consultant_request.clientPaidAllAmount == True:
+            messages.success(request, "Client already payed for this consultation quote, please confirm it.")
+            return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
+        form = ConsultantRequestUpdateForm(request.POST, instance=consultant_request)
         try:
-            client = Client_Personal_Info.objects.get(id =client_id)
-            consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
-            if consultant_request.status == "Pending":
-                if consultant_request.clientPaidAllAmount == True:
-                    messages.success(request, "Client already payed for this consultation quote, please confirm it.")
-                    return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
-                else:
-                    domain = current_site = get_current_site(request)
-                    url =  reverse("sendConsultantRequestQuote_URL", args=[client.id, consultant_request.id])
-                    build_link = str(request.scheme) + str("://") + str(domain) + str(url)
-                    # -------------
-                    mail_subject = "Consultation Quote Email [{status}]".format(status = consultant_request.status)
-                    message_title = "An email has been recieved from the Django Admin Group of Companies\n\n"
-                    message_subject = "Consultant Quote"
-                    message = message_title + "Please visit the following link to get updates about your consultation request\n\n\n"
-                    message += build_link
-                    messages.success(request, 'An email has been send to the client to inform him about his status regarding consultant request.')
-                    to_email = str(client.Email)
-                    email = EmailMessage(mail_subject, message, to=[to_email])
-                    email.send()
-                    return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
+            if form.is_valid():
+                data_1, data_2  = form.cleaned_data['price'], form.cleaned_data['clientPaidAllAmount']
+                obj = form.save(commit=False)
+                obj.update_timestamp =  timezone.now()
+                obj.save()
+            else:
+                messages.success(request, (form.errors))
+                return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))                    
         except Exception as e:
-            # print(e)
             messages.success(request, str(e))
             return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
-    else:
-        try:
-            client = Client_Personal_Info.objects.get(id =client_id)
-            consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
-            # print(request.POST)
-            form = ConsultantRequestUpdateForm(request.POST, instance=consultant_request)
-            try:
-                if form.is_valid():
-                    data_1, data_2 , data_3 = form.cleaned_data['price'], form.cleaned_data['clientPaid'], form.cleaned_data['clientPaidAllAmount']
-                    obj = form.save(commit=False)
-                    obj.update_timestamp =  timezone.now()
-                    obj.save()
-                else:
-                    messages.success(request, (form.errors))
-                    return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))                    
-            except Exception as e:
-                messages.success(request, str(e))
-                return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
-            # ----------------------
-            if obj.status == "New" or obj.status == "Rejected":
-                domain = current_site = get_current_site(request)
-                url =  reverse("sendConsultantRequestQuote_URL", args=[client.id, consultant_request.id])
-                build_link = str(request.scheme) + str("://") + str(domain) + str(url)
-                # -------------
-                mail_subject = "Consultation Quote Email [{status}]".format(status = obj.status)
-                message_title = "An email has been recieved from the Django Admin Group of Companies\n\n"
-                message_subject = "Consultant Quote"
-                message = message_title + "Please visit the following link to get updates about your consultation request\n\n\n"
-                message += build_link
-                messages.success(request, 'An email has been send to the client to inform him about his status regarding consultant request.')
-                to_email = str(client.Email)
-            if obj.status == "New" or obj.status == "Rejected":
-                obj.status = "Pending"
-                obj.save()
-        except Exception as e:
-            # print(e)
-            messages.error(request, 'Client Does Not Exist.')
-            return redirect(reverse("admin:index"))
-        if obj.status == "New" or obj.status == "Rejected":
-            email = EmailMessage(mail_subject, message, to=[to_email])
-            email.send()
+        domain = current_site = get_current_site(request)
+        url =  reverse("sendConsultantRequestQuote_URL", args=[client.id, consultant_request.id])
+        build_link = str(request.scheme) + str("://") + str(domain) + str(url)
+        mail_subject = "Consultation Quote Email [{status}]".format(status = obj.status)
+        message_title = "An email has been recieved from the Django Admin Group of Companies\n\n"
+        message_subject = "Consultant Quote"
+        message = message_title + "Please visit the following link to get updates about your consultation request\n\n\n"
+        message += build_link
+        to_email = str(client.Email)
+        email = EmailMessage(mail_subject, message, to=[to_email])
+        if obj.status != "New":
+            messages.success(request, 'A resend email has been send to the client to inform him about his status regarding consultant request.')
+        else:
+            messages.success(request, 'An email has been send to the client to inform him about his status regarding consultant request and client consultation quote status has been changed from "New" to "Pending."')
+        if obj.status == "New":
+            obj.status = "Pending"
+            obj.save()
+        email.send()
         return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
+    except Exception as e:
+        print(e)
+        messages.error(request, 'Client Does Not Exist.')
+        return redirect(reverse("admin:index"))
 
 
 
