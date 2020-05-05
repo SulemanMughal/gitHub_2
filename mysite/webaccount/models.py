@@ -525,18 +525,24 @@ class ConsulatationRequest(models.Model):
     
     explanation =models.TextField(verbose_name="Explanation",
                                   max_length=200,
-                                  blank=False,
-                                  default = None,
-                                  error_messages={
-                                      'blank' : "Explanation is Rquired."
-                                  })
+                                  blank=True,
+                                  null=True,
+                                  default = None
+    )
+                                  
     
     created_timestamp = models.DateTimeField(auto_now_add=False, 
                                             auto_now = False, 
                                             verbose_name = "Consultation Date & Time",
                                             default = timezone.now
                         )
-    status = models.CharField(max_length = 100, verbose_name="Status", choices =CONSULTATION_CHOICES, default="New", blank=False)
+    status = models.CharField(max_length = 100,
+                               verbose_name="Status",
+                            choices =CONSULTATION_CHOICES,
+                            default="New",
+                            blank=False,
+                            editable = False
+                        )
     Name = models.CharField(max_length = 100,
                             verbose_name = "Consultation Name",
                             unique = False,

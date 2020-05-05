@@ -988,9 +988,13 @@ class clientReportAdmin(admin.ModelAdmin):
 
 # Consultation Requests
 class ConsulatationRequestAdmin(admin.ModelAdmin):
+    change_form_template = "consulation_change_form.html"
+    readonly_fields =[
+        'status'
+    ]
     fieldsets = (
         ("Client Consultation Request Information", {
-            'fields': ('client' , 'consultant','explanation' , 'created_timestamp', 'status', 'rating')
+            'fields': ('client' , 'consultant','explanation' , 'created_timestamp', 'status','rating')
             }
         ),
     )
@@ -1001,19 +1005,17 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
     ]
 
     list_display = [
-        '__str__',
+        'id',
         'client',
+        'clientCompany',
+        'consultant',
         'sendQuote',
-
         'status',
-        'rating'
+        'update_timestamp',
     ]
-    # search_fields
-    # list_display_links
-    # ordering
-    # sortable_by=[
-    #     ''
-    # ]
+    sortable_by=[
+        'id'
+    ]
     list_filter = [
         'status'
     ]
@@ -1024,6 +1026,14 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
         display_title = "View " + str(obj.client.Name) + " 's Consultant Quote"
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
+    
+    # ****************************************************************
+    # Client Company Name
+    # ****************************************************************
+    def clientCompany(self,obj):
+        return str(obj.client.company_name)
+    
+    clientCompany.short_description = "Company Name"
     sendQuote.short_description = "Consultant Quotes"
 
 class ConsultantModelAdmin(admin.ModelAdmin):

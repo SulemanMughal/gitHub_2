@@ -543,20 +543,9 @@ class ConsultantRequestAddForm(forms.ModelForm):
             'consultant',
             'clientPaid',
             'clientPaidAllAmount',
-            'status'
         ]
         
         
-        def clean_status(self):
-            print(self.cleaned_data)
-            data_status = self.cleaned_data.get("status")
-            if self.cleaned_data.get("clientPaidAllAmount") is True:
-                if data_status != "Confirmed" or data_status != "Completed" or data_status != "Close":
-                    raise forms.ValidationError("Client already payed for this consultation quote, please confirm it.")
-            else:
-                if data_status == "Confirmed" or data_status == "Completed" or data_status == "Close":
-                    raise forms.ValidationError("You can't confirm the consultation request because the client didn't pay yet.")
-            
 
 # Consultant Request Form (STATUS == New)
 class ConsultantRequestUpdateForm(forms.ModelForm):
@@ -567,7 +556,6 @@ class ConsultantRequestUpdateForm(forms.ModelForm):
             'price',
             'clientPaidAllAmount',
             'clientPaid',
-            'status'
         ]
         
         
@@ -584,41 +572,19 @@ class ConsultantRequestUpdateForm(forms.ModelForm):
     
     def clean_price(self):
         # print(self.cleaned_data)
+        print(self)
         data = self.cleaned_data.get("price", None)
-        try:
-            if data is None or float(data) == 0:
-                # print(self.cleaned_data)
-                raise forms.ValidationError("Consultation Price is required.")
-            elif float(data) < 0:
-                raise forms.ValidationError("Consultation Price is should be greater than 0.")
-        except Exception as e:
-            print(e)
-        # print(float(data))
+        if data is None or len(data) == 0:
+            # print(self.cleaned_data)
+            raise forms.ValidationError("Consultation Price is required.")
+        elif float(data) < 0:
+            raise forms.ValidationError("Consultation Price is should be greater than 0.")
+        
         return float(data)
         
-    def clean_clientPaidAllAmount(self):
-        return self.cleaned_data.get("clientPaidAllAmount")
 
     
     
-    def clean_status(self):
-        cleaned_data = super().clean()
-        data_status = cleaned_data.get("status")
-        is_paid = self.cleaned_data.get("clientPaidAllAmount")
-        # print(data_status)
-        if is_paid:
-            if data_status != "Confirmed":
-                raise ValidationError("Client already payed for this consultation quote, please confirm it.")
-            else:
-                return data_status
-        else:
-            return data_status
-    
-    # def clean(self):
-    #     print(self.cleaned_data)
-    #     return self.cleaned_data
-
-
 
 # CONSULTATION FEDBACK FORM
 class FeedbackForm(forms.ModelForm):
