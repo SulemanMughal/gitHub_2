@@ -1044,10 +1044,33 @@ class ConsultantModelAdmin(admin.ModelAdmin):
     search_fields = [
         'Name'
     ]
-
     form = ConsultantModelForm
+    # delete_confirmation_template = "delete_confirmation.html"
+    # delete_selected_confirmation_template = "delete_selected_confirmation.html"
+    change_list_template = "change_list.html"
+    
+class parentAmdin(admin.ModelAdmin):
+    change_list_template = "change_list.html"
+    delete_confirmation_template = "delete_confirmation.html"
+    delete_selected_confirmation_template = "delete_selected_confirmation.html"
+    
+    list_display=[
+        'connectToConsultationField'
+    ]
+    
+    def connectToConsultationField(self, obj):
+        url= reverse("SeeDetails")
+        link = '<a href="%s">%s</a>'%(url,"Details" )
+        return mark_safe(link)
+
+    connectToConsultationField.short_description = "Details"
+    
+    
+    def changelist_view(request, extra_context=None):
+        return redirect(reverse("admin:webaccount_consultantmodel_changelist"))
 
 admin_site = MyAdminSite()
+admin_site.register(ParentModel,parentAmdin)
 admin_site.register(Sector, SectorAdmin)
 admin_site.register(Client_Personal_Info, Client_Personal_InfoAdmin)
 admin_site.register(Required_Documents,Required_DocumentsAdmin)

@@ -486,6 +486,21 @@ class ClientRequiredDocuments(models.Model):
                     raise ValidationError(_('Uploded document type and the selected document type must be same.'))
 
 
+# ****************************************************************
+# Parent Model For Consultation Field
+# ****************************************************************
+class ParentModel(models.Model):
+    parentName = models.CharField(
+        verbose_name="Parent Field Name",
+        default = "",
+        blank=False,
+        null = False,
+        max_length = 100
+    )
+
+    def __str__(self):
+        return self.parentName
+
 class ConsultantModel(models.Model):
     Name = models.CharField(max_length = 100,
                             verbose_name = "Field",
@@ -498,12 +513,14 @@ class ConsultantModel(models.Model):
                             }
                             )
     
-    parentField = models.CharField(max_length = 100,
-                                   verbose_name = "Parent Field",
-                                   default = None,
-                                   blank = True,
-                                   null = True
-                                   )
+    # parentField = models.CharField(max_length = 100,
+    #                                verbose_name = "Parent Field",
+    #                                default = None,
+    #                                blank = True,
+    #                                null = True
+    #                                )
+    
+    parent = models.ForeignKey(ParentModel, on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
         verbose_name = "Consultation Field"

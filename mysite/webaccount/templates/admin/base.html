@@ -343,6 +343,11 @@
                         PickUp Order Requests
                         {% elif title == "Add pick up request orders" or title == "Change pick up request orders" %}
                             PickUp Order Request Details
+
+                            {% elif title == "Select Consultation Field to change" %}
+                              Consultation Fields
+                            {% elif title == "Add Consultation Field" or title == "Change Consultation Field" %}
+                                Consultation Field Details
                                   
                       {% else %}
               {{ title }}
@@ -424,6 +429,7 @@
       $('[for="id_consultant"]').after("<br>");
       $('[for="id_explanation"]').after("<br>");
       $('[for="id_shippingMethod"]').after("<br>");
+      $('[for="id_parent"]').after("<br>");
       
       $('[for="id_managerRelational"]').after("<br>");
       $('[for="id_quoteStatus"]').addClass("ml-2");
@@ -453,6 +459,11 @@
     $(".clearable-file-input").remove();
   });
 </script>
+
+
+
+
+
 
 </body>
 

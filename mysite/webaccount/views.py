@@ -666,3 +666,12 @@ def viewPickUpRequestOnFailed(request, client_id, pickup_order_id):
         messages.success(request,"Invlid Request")
         return redirect(reverse("admin:webaccount_pickuprequestorders_changelist"))
     
+    
+@login_required
+@staff_member_required
+def SeeDetails(request):
+    template_name='see_details.html'
+    context = {
+        "objects" : ParentModel.objects.all()
+    }
+    return render(request, template_name, context)

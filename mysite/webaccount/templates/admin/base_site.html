@@ -83,6 +83,12 @@
             {% elif title == "Add pick up request orders" or title == "Change pick up request orders" %}
                 PickUp Order Request Details
 
+                {% elif title == "Select Consultation Field to change" %}
+                Consultation Fields
+              {% elif title == "Add Consultation Field" or title == "Change Consultation Field" %}
+                  Consultation Field Details
+                    
+
     {% else %}
         {{ title }}
     {% endif %} | {{ site_title|default:_('Django site admin') }}

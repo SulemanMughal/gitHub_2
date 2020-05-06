@@ -1,0 +1,60 @@
+{% extends 'admin/base.html' %}
+{% load i18n static %}
+
+{% block title %} Consultations Feilds {% endblock %}
+
+{% block content %}
+
+<div class="mx-auto" style="width: 80% !important;">
+    <div class="card shadow" style="width: 100% !important;">
+
+    
+    <div class="card-header">
+        <h5 class="class-title font-weight-bold">
+           Consultation Fiels
+        </h5>
+        <a href="{% url 'admin:webaccount_consultantmodel_changelist' %}" class="btn btn-success mt-2 mb-2 shadow btn-ripple">Consultation Feilds Page <i class="fa fa-arrow-right ml-2"></i></a>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+              <tr>
+                <th colspan="2">
+                    Name
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for i in objects %}
+               
+                <tr>
+                    <td >
+                        <span class="font-weight-bold">{{ i }}</span>
+                        
+                        <a href="{% url 'admin:webaccount_parentmodel_delete' i.pk %}" type="button" class="btn btn-primary border-0 bg-transparent text-dark float-right"><i class="fa fa-remove"></i></a>
+                        <a href="{% url 'admin:webaccount_parentmodel_change' i.pk %}" type="button" class="btn btn-primary border-0 bg-transparent text-dark float-right"><i class="fa fa-edit"></i></a>
+                        {% for j in i.consultantmodel_set.all %}
+
+                        
+                           <tr class="ml-5" >
+                               <td colspan="2" class="ml-5 pl-5">
+                               {{ j }}
+                               <a href="{% url 'admin:webaccount_consultantmodel_delete' j.pk %}" type="button" class="btn btn-primary border-0 bg-transparent text-dark float-right"><i class="fa fa-remove"></i></a>
+                                <a href="{% url 'admin:webaccount_consultantmodel_change' j.pk %}" type="button" class="btn btn-primary border-0 bg-transparent text-dark float-right"><i class="fa fa-edit"></i></a>
+                               </td>
+                           </tr>
+                        {% endfor %}
+                    </td>
+
+                    
+                </tr>
+                
+                {% endfor %}
+
+            </tbody>
+          </table>
+    </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

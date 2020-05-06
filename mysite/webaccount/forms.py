@@ -612,13 +612,7 @@ class ConsultantModelForm(forms.ModelForm):
     class Meta:
         model = ConsultantModel
         fields  = "__all__"
-        
-        widgets={
-            'parentField': forms.Select(choices=([(str(i), str(i)) for i in ConsultantModel.objects.all()] + [(None, None)]))
-        }
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__( *args, **kwargs)
-        self.fields['parentField'].queryset =[(str(i), str(i)) for i in ConsultantModel.objects.all()] + [(None, None)]
- 
+       
+    def clean(self):
+        if self.cleaned_data.get("Name") is not None:
+            ParentModel.objects.get_or_create(parentName = self.cleaned_data.get("Name"))

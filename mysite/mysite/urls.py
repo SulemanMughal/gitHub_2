@@ -52,6 +52,7 @@ urlpatterns = [
     path('sendFile/<int:client_id>/<int:consultant_request_id>/', sendFile, name="send-file"),
     path('declined/<int:client_id>/<int:consultant_request_id>/', declineVIew, name="declineVIew_URL"),
     path('ratings/<int:client_id>/<int:consultant_request_id>/', ratingsView, name="ratingsView_URL"),
+    path("see-details-consultations-fields", SeeDetails, name="SeeDetails"),
     
     # --------------------------------------------------------------------------------------
     # Pick Up Order Request URLS
