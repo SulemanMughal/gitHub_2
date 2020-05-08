@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from webaccount.admin import admin_site
 from django.contrib.auth import views as auth_views
-
+from django.urls import include
 # from django.conf.urls import url
 
 from webaccount.views import *
@@ -28,6 +28,7 @@ from django.contrib.auth.views import LoginView
 
 urlpatterns = [
     path('admin/', admin_site.urls),
+    path('select2/', include('django_select2.urls')),
     path('password_reset/',auth_views.PasswordResetView.as_view(),name='admin_password_reset'),
     path('password_reset/done/',auth_views.PasswordResetDoneView.as_view(),name='password_reset_done'),
     path('reset/<uidb64>/<token>/',auth_views.PasswordResetConfirmView.as_view(),name='password_reset_confirm'),

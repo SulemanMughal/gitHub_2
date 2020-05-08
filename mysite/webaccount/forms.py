@@ -510,10 +510,25 @@ class BaseDocumentFormSet(forms.ModelForm):
 # -------------------------------------------------------------------------------------------
 # CONSULTATION MODELS FORM HANDLERS
 
+# from pip import autocomplete
+from django_select2.forms import ModelSelect2Widget
 
 
 # Consultation Add New Entry Form
 class ConsultantRequestAddForm(forms.ModelForm):
+    
+    parent = forms.ModelChoiceField(
+        queryset=ParentModel.objects.all(),
+        label=u"Parent",
+        required=False
+        # widget=ModelSelect2Widget(
+        #      model=ParentModel,
+        #     search_fields=['parentName__icontains'],
+            
+        # )
+    )
+
+    
     class Meta:
         model = ConsulatationRequest
         fields = [
@@ -521,8 +536,26 @@ class ConsultantRequestAddForm(forms.ModelForm):
             'explanation',
             'created_timestamp',
             'consultant',
-            'clientPaidAllAmount',
+            'rating',
+            'status',
         ]
+        
+       
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.status == "Rejected" or self.instance.status == "Close" or self.instance.status == "Declined":
+            self.fields['client'].disabled = True
+            self.fields['consultant'].disabled = True
+            self.fields['explanation'].disabled = True
+            self.fields['parent'].disabled = True
+            self.fields['rating'].disabled = True
+        else:
+            self.fields['status'].disabled = True
+        try:
+            if self.instance.client is not None:
+                self.fields['client'].disabled = True
+        except:
+                pass
         
        
 from .models import CONSULTATION_CHOICES
@@ -555,9 +588,18 @@ class ConsultantRequestUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['consultantManager'].queryset = User.objects.filter(is_superuser = "Consultant", is_active = True)
-        
-    
-    
+        if self.instance.status == "Rejected" or self.instance.status == "Close" or self.instance.status == "Declined":
+            self.fields['consultantManager'].disabled = True
+            self.fields['price'].disabled = True
+            self.fields['clientPaidAllAmount'].disabled = True
+        if self.instance.price is not None:
+            self.fields['price'].disabled = True
+        try:
+            if self.instance.consultantManager is not None:
+                self.fields['consultantManager'].disabled = True
+        except:
+            pass 
+           
     def clean_price(self):
         data = self.cleaned_data.get("price", None)
         if data is None:
@@ -578,8 +620,10 @@ class ConsultantRequestUpdateForm(forms.ModelForm):
     def clean_status(self):
         paid = self.cleaned_data.get("clientPaidAllAmount")
         s = self.cleaned_data.get("status")
-        if s == "Completed" and paid == False:
-            raise forms.ValidationError("The quote status cannot be completed until the payment status is completed")
+        if (s == "Completed" or s == "Confirmed") and paid == False:
+            raise forms.ValidationError(f"The quote status cannot be {s} until the payment status is completed")
+        elif paid == True and s != "Confirmed":
+            raise forms.ValidationError(f"Client has paid the amount. Please confirm it as well.")
         return s    
     
 

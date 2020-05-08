@@ -993,12 +993,19 @@ class clientReportAdmin(admin.ModelAdmin):
 # Consultation Requests
 class ConsulatationRequestAdmin(admin.ModelAdmin):
     change_form_template = "consulation_change_form.html"
-    readonly_fields =[
-        'status'
+    form=ConsultantRequestAddForm
+    # prepopulated_fields  = {"consultant": ("parentField",)}
+    autocomplete_fields = [
+        
+        "consultant"
+        
     ]
+    # readonly_fields =[
+    #     'status'
+    # ]
     fieldsets = (
         ("Client Consultation Request Information", {
-            'fields': ('client' , 'consultant','explanation' , 'created_timestamp', 'status','rating')
+            'fields': ('client' ,'consultant','explanation' , 'created_timestamp', 'status','rating')
             }
         ),
     )
@@ -1010,7 +1017,7 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
 
     list_display = [
         'id',
-        'client',
+        'client_name',
         'clientCompany',
         'consultant',
         'sendQuote',
@@ -1031,6 +1038,13 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
     
+    
+    def client_name(self, obj):
+        url = reverse("admin:webaccount_client_personal_info_change",args = [obj.client.pk])
+        display_title = str(obj.client.Name)
+        link = '<a href="%s">%s</a>'%(url, display_title)
+        return mark_safe(link)
+    client_name.short_description = "Client Details"
     # ****************************************************************
     # Client Company Name
     # ****************************************************************
@@ -1056,6 +1070,9 @@ class parentAmdin(admin.ModelAdmin):
     
     list_display=[
         'connectToConsultationField'
+    ]
+    search_fields = [
+        'parentName'
     ]
     
     def connectToConsultationField(self, obj):
@@ -1091,10 +1108,13 @@ class PickUpOrderRequestsAdmin(admin.ModelAdmin):
         'id'
     ]
     list_display = [
-        'client',
-        'viewActionPage',
-        'shippingMethod',
+        'id',
+        'client_name',
+        "client_company",
+        "client_location",
         'status',
+        'updated_timestamp'
+        
     ]
     
     ordering = [
@@ -1112,11 +1132,23 @@ class PickUpOrderRequestsAdmin(admin.ModelAdmin):
     list_per_page = 10
 
 
-    def viewActionPage(self, obj):
-        url= reverse("viewPickUpRequest_URL",args = [obj.client.pk, obj.pk])
-        display_title = "View " + str(obj.client.Name) + " 's Pickup Order Action Page"
+   
+    
+    
+    def client_name(self, obj):
+        url = reverse("admin:webaccount_client_personal_info_change",args = [obj.client.pk])
+        display_title = "View " + str(obj.client.Name) + " 's Details"
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
-    viewActionPage.short_description = "Action Pages"
+    client_name.short_description = "Client Details"
+    
+    def client_location(self, obj):
+        return obj.client.location
+    
+    def client_company(self, obj):
+        return obj.client.company_name
+    
+    client_location.short_description = "Location"
+    client_company.short_description = "Company"
 
 admin_site.register(PickUpRequestOrders, PickUpOrderRequestsAdmin)

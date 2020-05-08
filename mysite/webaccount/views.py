@@ -208,9 +208,6 @@ def save_send_quote_consultant_mail_view(request, client_id, consultant_request_
     try:
         client = Client_Personal_Info.objects.get(id =client_id)
         consultant_request = ConsulatationRequest.objects.get(client=client, id=consultant_request_id)
-        if consultant_request.clientPaidAllAmount == True:
-            messages.success(request, "Client already payed for this consultation quote, please confirm it.")
-            return redirect(reverse("sendConsultantRequestQuote_URL", args=[client_id,consultant_request_id ]))
         form = ConsultantRequestUpdateForm(request.POST, instance=consultant_request)
         try:
             if form.is_valid():

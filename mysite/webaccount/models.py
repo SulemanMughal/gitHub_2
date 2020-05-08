@@ -535,7 +535,7 @@ class ConsultantModel(models.Model):
 
 # Consultation Model Created By Client
 class ConsulatationRequest(models.Model):
-    client = models.ForeignKey(Client_Personal_Info, on_delete=models.CASCADE, null=False)
+    client = models.ForeignKey(Client_Personal_Info, on_delete=models.CASCADE, null=False,  limit_choices_to={'status': "Active"})
     consultant = models.ForeignKey(ConsultantModel, 
                                 on_delete=models.CASCADE, 
                                 null=False, 
@@ -612,6 +612,7 @@ PickUpRequestOrdersStatues = (
     ('ON DELIVERY', 'ON DELIVERY'),
     ('RECEIVED', 'RECEIVED'),
     ('FAILED', 'FAILED'),
+    ('PENDING', 'PENDING'),
     ('NONE','NONE')
 )
 
@@ -620,8 +621,41 @@ class PickUpRequestOrders(models.Model):
     client = models.ForeignKey(Client_Personal_Info, 
                                null =  False, 
                                blank = False,
-                               on_delete=models.CASCADE
+                               on_delete=models.CASCADE,
+                               limit_choices_to={'status': "Active"}
                     )
+    
+    location = models.CharField(verbose_name="Location",
+                                blank = False,
+                                null = False,
+                                default = "",
+                                max_length = 100
+    )
+
+    contactNumber = models.CharField(
+        max_length = 10,
+        validators = [ phoneNumberValidator ],
+        blank=False,
+        null=False,
+        default = "",
+        verbose_name = "Contact Number"
+    )
+    
+    contactName = models.CharField(
+        max_length = 100,
+        blank=False,
+        null=False,
+        default = "",
+        verbose_name= "Contact Name"
+    )
+    
+    numberInvoices = models.IntegerField(
+        verbose_name="Number of Invoices",
+        blank=False,
+        null=False,
+        default=0,
+        validators=[integerValidator]
+    )
 
     status = models.CharField(max_length = 15, 
                               choices = PickUpRequestOrdersStatues,
