@@ -497,10 +497,21 @@ class ParentModel(models.Model):
         null = False,
         max_length = 100
     )
+    
+    def delete(self, *args, **kwargs):
+        if self.parentName == "Accounting":
+            return ValidationError("Accounting Field can not be changed or deleted.")
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.parentName
 
+def default_policy():
+    try:
+        return ParentModel.objects.get(parentName='Accounting').pk
+    except:
+        return ParentModel.objects.create(parentName='Accounting').pk
+    
 class ConsultantModel(models.Model):
     Name = models.CharField(max_length = 100,
                             verbose_name = "Field",
@@ -513,14 +524,8 @@ class ConsultantModel(models.Model):
                             }
                             )
     
-    # parentField = models.CharField(max_length = 100,
-    #                                verbose_name = "Parent Field",
-    #                                default = None,
-    #                                blank = True,
-    #                                null = True
-    #                                )
     
-    parent = models.ForeignKey(ParentModel, on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey(ParentModel, on_delete=models.SET_DEFAULT, null=False, blank=False , default = default_policy())
     
     class Meta:
         verbose_name = "Consultation Field"
@@ -562,7 +567,7 @@ class ConsulatationRequest(models.Model):
                             editable = True
                         )
     price = models.DecimalField(verbose_name="Price", default = None, blank = True, max_digits = 10, decimal_places=2, null=True)
-    update_timestamp = models.DateTimeField(auto_now_add=True)
+    update_timestamp = models.DateTimeField(auto_now=True)
     clientPaidAllAmount = models.BooleanField(verbose_name="Client Paid All Amount",
                                                  default = False,
                                                  )
@@ -673,9 +678,9 @@ class PickUpRequestOrders(models.Model):
                                 'blank' : "Shipping method is required",
                                 'null' : "Shipping method is required"
                             })
-    
+    pickupTimestamp = models.DateTimeField(default = timezone.now, verbose_name= "Pickup Date & Time")
     created_timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Created Timestamp")
-    updated_timestamp = models.DateTimeField(default = timezone.now, verbose_name="Last Updated Timestamp")
+    updated_timestamp = models.DateTimeField( verbose_name="Last Updated Timestamp", auto_now=True)
     
     def __str__(self):
         return str(self.client.Name) + "'s" + " Pickup Order Request"

@@ -620,10 +620,13 @@ class ConsultantRequestUpdateForm(forms.ModelForm):
     def clean_status(self):
         paid = self.cleaned_data.get("clientPaidAllAmount")
         s = self.cleaned_data.get("status")
+        print(paid, s)
         if (s == "Completed" or s == "Confirmed") and paid == False:
             raise forms.ValidationError(f"The quote status cannot be {s} until the payment status is completed")
-        elif paid == True and s != "Confirmed":
-            raise forms.ValidationError(f"Client has paid the amount. Please confirm it as well.")
+        elif (s == "Confirmed" or s == "Completed") and paid == True :
+            return s
+        elif paid == True:
+            raise forms.ValidationError("Client has paid all amount please confirm it.")
         return s    
     
 
@@ -652,11 +655,30 @@ class FeedbackForm(forms.ModelForm):
 # -------------------------------------------------------------------------------------------
 
 
+from .models import default_policy
+
 class ConsultantModelForm(forms.ModelForm):
     class Meta:
         model = ConsultantModel
-        fields  = "__all__"
-       
-    def clean(self):
-        if self.cleaned_data.get("Name") is not None:
-            ParentModel.objects.get_or_create(parentName = self.cleaned_data.get("Name"))
+        fields  = [
+            'parent',
+            'Name'
+        ]
+            
+
+# ****************************************************************
+# Client Pickup Order Request
+# ****************************************************************
+class PickUpRequestOrdersForm(forms.ModelForm):
+    class Meta:
+        model = PickUpRequestOrders
+        fields = "__all__"
+        
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        try:
+            if self.instance.client is not None:
+                self.fields['client'].disabled = True
+        except:
+            pass

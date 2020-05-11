@@ -33,16 +33,7 @@ from django.contrib.admin.utils import (
     get_deleted_objects, lookup_needs_distinct, model_format_dict,
     model_ngettext, quote, unquote,
 )
-from .forms import (
-    UserCreationForm, 
-    UserChangeForm, 
-    Required_DocumentsForm,
-    Client_Personal_Info_Form, 
-    RelationalManagerForm,
-    BaseDocumentFormSet,
-    ConsultantRequestAddForm,
-    ConsultantModelForm
-)
+from .forms import *
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.main import ChangeList, SEARCH_VAR, IGNORED_PARAMS
 from django.contrib.admin.exceptions import (
@@ -1034,7 +1025,7 @@ class ConsulatationRequestAdmin(admin.ModelAdmin):
     
     def sendQuote(self, obj):
         url= reverse("sendConsultantRequestQuote_URL",args = [obj.client.pk, obj.pk])
-        display_title = "View " + str(obj.client.Name) + " 's Consultant Quote"
+        display_title = str(obj.client.Name)
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
     
@@ -1085,6 +1076,31 @@ class parentAmdin(admin.ModelAdmin):
     
     def changelist_view(request, extra_context=None):
         return redirect(reverse("admin:webaccount_consultantmodel_changelist"))
+    
+    def delete_view(self, request, object_id, extra_context=None):
+        try:
+            if ParentModel.objects.get(id = object_id).parentName == 'Accounting':
+                messages.error(request, "Accounting Field can not be changed or deleted.")
+                return redirect("SeeDetails")
+            else:
+                return super().delete_view( 
+                    request, object_id, extra_context=None)
+        except:
+            return super().delete_view( 
+                    request, object_id, extra_context=None)
+            
+    def change_view(self,request, object_id, form_url='', extra_context=None):
+        try:
+            if ParentModel.objects.get(id = object_id).parentName == 'Accounting':
+                messages.error(request, "Accounting Field can not be changed or deleted.")
+                return redirect("SeeDetails")
+            else:
+                return super().change_view( 
+                    request, object_id, extra_context=None)
+        except:
+            return super().change_view( 
+                    request, object_id, extra_context=None)
+            
 
 admin_site = MyAdminSite()
 admin_site.register(ParentModel,parentAmdin)
@@ -1102,6 +1118,7 @@ admin_site.register(ConsultantModel, ConsultantModelAdmin)
 admin_site.register(Shipping)
 
 class PickUpOrderRequestsAdmin(admin.ModelAdmin):
+    form = PickUpRequestOrdersForm
     search_fields = [
         'client__Name',
         'client__id',
@@ -1137,10 +1154,10 @@ class PickUpOrderRequestsAdmin(admin.ModelAdmin):
     
     def client_name(self, obj):
         url = reverse("admin:webaccount_client_personal_info_change",args = [obj.client.pk])
-        display_title = "View " + str(obj.client.Name) + " 's Details"
+        display_title =  str(obj.client.Name)
         link = '<a href="%s">%s</a>'%(url, display_title)
         return mark_safe(link)
-    client_name.short_description = "Client Details"
+    client_name.short_description = "Client"
     
     def client_location(self, obj):
         return obj.client.location
