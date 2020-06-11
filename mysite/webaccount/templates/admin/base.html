@@ -143,6 +143,7 @@
       <nav class="col-md-2 d-none d-md-block bg-light sidebar">
         <div class="sidebar-sticky">
           <ul class="nav flex-column">
+            {% if  request.user.is_superuser %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'admin:index' %}">
                 Dashboard
@@ -153,6 +154,7 @@
                 Auth
               </a>
             </li>
+            
             <li class="nav-item">
               <a class="nav-link" href="/admin/accounts/user/">
                 <i class="far fa-user"></i> Users 
@@ -163,20 +165,20 @@
                 Webaccount
               </a>
             </li>
-            
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/client_personal_info/">
                 <i class="fas fa-address-book"></i> Clients
               </a>
             </li>
-
+            {% if  request.user.is_superuser %}
 
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/consulatationrequest/">
                 <i class="fas fa-address-book"></i> Consultation Requests
               </a>
             </li>
-
+{% endif %}
 
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/clientreport/">
@@ -189,7 +191,7 @@
               </a>
             </li>
             
-      
+            {% if  request.user.is_superuser %}
 
             <li class="nav-item">
               <a class="nav-link" href="/admin/webaccount/sector/">
@@ -222,7 +224,7 @@
                 <i class="fas fa-file"></i> Required Documents
               </a>
             </li>
-            
+            {% endif %}
           </ul>
         </div>
       </nav>
